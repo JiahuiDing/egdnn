@@ -2,7 +2,7 @@
 #include <iostream>
 using namespace EGDNN;
 
-Neuron::Neuron(Type type, int tag) : type(type), tag(tag)
+Neuron::Neuron(int tag, Type type) : tag(tag), type(type)
 {
 	bias = fRand(-1, 1);
 	outConnections.clear();

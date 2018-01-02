@@ -14,13 +14,13 @@ double Y_data[4] = { 0, 1, 1, 0 };
 int main(int argc, char *argv[])
 {
 	srand(getpid());
-	Neuron *neuron1 = new Neuron(Neuron::input, 1);
-	Neuron *neuron2 = new Neuron(Neuron::input, 2);
-	Neuron *neuron3 = new Neuron(Neuron::hidden, 3);
-	Neuron *neuron4 = new Neuron(Neuron::hidden, 4);
-	Neuron *neuron5 = new Neuron(Neuron::hidden, 5);
-	Neuron *neuron6 = new Neuron(Neuron::hidden, 6);
-	Neuron *neuron7 = new Neuron(Neuron::output, 7);
+	Neuron *neuron1 = new Neuron(1, Neuron::input);
+	Neuron *neuron2 = new Neuron(2, Neuron::input);
+	Neuron *neuron3 = new Neuron(3, Neuron::hidden);
+	Neuron *neuron4 = new Neuron(4, Neuron::hidden);
+	Neuron *neuron5 = new Neuron(5, Neuron::hidden);
+	Neuron *neuron6 = new Neuron(6, Neuron::hidden);
+	Neuron *neuron7 = new Neuron(7, Neuron::output);
 	
 	neuron1->AddOutNeuron(neuron3);
 	neuron1->AddOutNeuron(neuron4);

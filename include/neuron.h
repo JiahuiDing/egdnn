@@ -13,8 +13,8 @@ namespace EGDNN
 	{	
 		public:
 		enum Type { input = 0, hidden = 1, output = 2};
-		Type type;
 		int tag;
+		Type type;
 		double bias;
 		std::vector<Connection> outConnections;
 		std::vector<Connection> inConnections; // inConnection does not contain weight
@@ -24,7 +24,7 @@ namespace EGDNN
 		double gradient;
 		int counter;
 		
-		Neuron(Type type, int tag);
+		Neuron(int tag, Type type);
 		~Neuron();
 		void PropagateValue();
 		void CalGradient();
