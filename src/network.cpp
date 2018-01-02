@@ -103,7 +103,7 @@ void Network::UpdateWeight()
 	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		neuron->UpdateByGradient();
+		neuron->UpdateWeight();
 	}
 }
 

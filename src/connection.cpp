@@ -13,6 +13,6 @@ void Connection::AddGradient(double gradient)
 
 void Connection::UpdateWeight()
 {
-	weight += sumGradient;
+	weight += learning_rate * sumGradient;
 	sumGradient = 0;
 }

@@ -15,7 +15,7 @@ Neuron::~Neuron()
 	inConnections.clear();
 }
 
-// relu activate function
+// calculate the value of all neuron in the network
 void Neuron::PropagateValue()
 {
 	if(type == input) // input neuron
@@ -45,12 +45,15 @@ void Neuron::PropagateValue()
 	}
 }
 
-// relu activate function
+// calculate the gradient of all parameters in the network and store it, wait for update
 void Neuron::CalGradient()
 {
 	if(type == input) // input neuron
 	{
-		return;
+		for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+		{
+			it->AddGradient(learning_rate * it->neuron->gradient * value);
+		}
 	}
 	else if(type == hidden) // hidden neuron
 	{
@@ -60,31 +63,34 @@ void Neuron::CalGradient()
 			gradient += it->neuron->gradient * it->weight;
 		}
 		gradient = value > 0 ? gradient : 0;
+		
+		sumGradient += gradient;
+		for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+		{
+			it->AddGradient(it->neuron->gradient * value);
+		}
 	}
 	else // output neuron
 	{
 		gradient = trueValue - value;
 		gradient = value > 0 ? gradient : 0;
+		
+		sumGradient += gradient;
+		for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+		{
+			it->AddGradient(it->neuron->gradient * value);
+		}
 	}
 }
 
-// Update inConnections weight and bias by gradient
-void Neuron::UpdateByGradient()
+// Update outConnections weight and bias by gradient
+void Neuron::UpdateWeight()
 {
-	if(type == input) // input neuron
+	bias += learning_rate * sumGradient;
+	sumGradient = 0;
+	for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 	{
-		for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
-		{
-			it->weight += learning_rate * it->neuron->gradient * value;
-		}
-	}
-	else // hidden neuron & output neuron
-	{
-		bias += learning_rate * gradient;
-		for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
-		{
-			it->weight += learning_rate * it->neuron->gradient * value;
-		}
+		it->UpdateWeight();
 	}
 }
 

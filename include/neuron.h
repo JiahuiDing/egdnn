@@ -22,13 +22,14 @@ namespace EGDNN
 		double value;
 		double trueValue;
 		double gradient;
+		double sumGradient;
 		int counter;
 		
 		Neuron(int tag, Type type);
 		~Neuron();
 		void PropagateValue();
 		void CalGradient();
-		void UpdateByGradient();
+		void UpdateWeight();
 		void ResetState();
 		void PropagateCounter();
 		void AddOutNeuron(Neuron *neuron);

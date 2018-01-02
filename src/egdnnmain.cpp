@@ -77,6 +77,7 @@ int main(int argc, char *argv[])
 			
 			// getchar();
 		}
+		
 		// getchar();
 		std::cout << cnt++ << " " << error / 4 << "\n";
 		if(fabs(lastError - error) < 1e-8)
