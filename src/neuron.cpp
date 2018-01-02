@@ -92,12 +92,16 @@ void Neuron::UpdateWeight()
 	}
 }
 
-// Reset state
+// Reset state except sumGradient
 void Neuron::ResetState()
 {
 	if(type != input)
 	{
 		value = 0;
+	}
+	if(type != output)
+	{
+		trueValue = 0;
 	}
 	gradient = 0;
 	counter = 0;
