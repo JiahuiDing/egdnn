@@ -52,7 +52,7 @@ void Neuron::CalGradient()
 	{
 		for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 		{
-			it->AddGradient(learning_rate * it->neuron->gradient * value);
+			it->AddGradient(it->neuron->gradient * value);
 		}
 	}
 	else if(type == hidden) // hidden neuron

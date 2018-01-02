@@ -57,10 +57,11 @@ int main(int argc, char *argv[])
 	network.AddNeuron(neuron6);
 	network.AddNeuron(neuron7);
 	
-	double lastError = 100000;
+	double lastError = 1e9;
 	int cnt = 0;
 	while(true)
 	{
+		std::cout << "iteration : " << cnt++ << "\n";
 		double error = 0;
 		for(int i = 0; i < 4; i++)
 		{
@@ -73,18 +74,18 @@ int main(int argc, char *argv[])
 			network.BackPropagation();
 			network.UpdateWeight();
 			
+			std::cout << "value : " << neuron7->value << " , " << "trueValue : " << neuron7->trueValue << "\n";
 			error += (neuron7->value - neuron7->trueValue) * (neuron7->value - neuron7->trueValue);
-			
-			// getchar();
 		}
 		
-		// getchar();
-		std::cout << cnt++ << " " << error / 4 << "\n";
+		std::cout << " " << error / 4 << "\n";
 		if(fabs(lastError - error) < 1e-8)
 		{
 			break;
 		}
 		lastError = error;
+		
+		// getchar();
 	}
 	
 	return 0;
