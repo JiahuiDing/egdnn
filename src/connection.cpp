@@ -5,3 +5,14 @@ Connection::Connection(Neuron *neuron) : neuron(neuron)
 {
 	weight = fRand(-1, 1);
 }
+
+void Connection::AddGradient(double gradient)
+{
+	sumGradient += gradient;
+}
+
+void Connection::UpdateWeight()
+{
+	weight += sumGradient;
+	sumGradient = 0;
+}

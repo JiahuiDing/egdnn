@@ -15,6 +15,8 @@ namespace EGDNN
 		double sumGradient;
 		
 		Connection(Neuron *neuron);
+		void AddGradient(double gradient);
+		void UpdateWeight();
 	};
 }
 
