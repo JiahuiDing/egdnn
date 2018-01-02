@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 			network.UpdateWeight();
 			
 			std::cout << "value : " << neuron7->value << " , " << "trueValue : " << neuron7->trueValue << "\n";
-			error += (neuron7->value - neuron7->trueValue) * (neuron7->value - neuron7->trueValue);
+			error += network.CalError();
 		}
 		
 		std::cout << " " << error / 4 << "\n";

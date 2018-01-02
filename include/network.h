@@ -16,6 +16,7 @@ namespace EGDNN
 		void ForwardPropagation();
 		void BackPropagation();
 		void UpdateWeight();
+		double CalError();
 		void AddNeuron(Neuron *neuron);
 		void Display();
 	};

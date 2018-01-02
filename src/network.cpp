@@ -107,6 +107,20 @@ void Network::UpdateWeight()
 	}
 }
 
+double Network::CalError()
+{
+	double error = 0;
+	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	{
+		Neuron *neuron = *it;
+		if(neuron->type == Neuron::output)
+		{
+			error += (neuron->value - neuron->trueValue) * (neuron->value - neuron->trueValue);
+		}
+	}
+	return error;
+}
+
 void Network::AddNeuron(Neuron *neuron)
 {
 	neurons.push_back(neuron);
