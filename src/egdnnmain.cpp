@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 		}
 		
 		std::cout << " " << error / 4 << "\n";
-		if(fabs(lastError - error) < 1e-8)
+		if(fabs(lastError - error) < 1e-12)
 		{
 			break;
 		}

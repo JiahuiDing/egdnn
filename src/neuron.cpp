@@ -58,13 +58,16 @@ void Neuron::CalGradient()
 	else if(type == hidden) // hidden neuron
 	{
 		gradient = 0;
-		for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
-		{
-			gradient += it->neuron->gradient * it->weight;
-		}
-		gradient = value > 0 ? gradient : 0;
 		
-		sumGradient += gradient;
+		if(value > 0)
+		{
+			for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+			{
+				gradient += it->neuron->gradient * it->weight;
+			}
+			sumGradient += gradient;
+		}
+		
 		for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 		{
 			it->AddGradient(it->neuron->gradient * value);
@@ -74,12 +77,7 @@ void Neuron::CalGradient()
 	{
 		gradient = trueValue - value;
 		gradient = value > 0 ? gradient : 0;
-		
 		sumGradient += gradient;
-		for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
-		{
-			it->AddGradient(it->neuron->gradient * value);
-		}
 	}
 }
 
