@@ -40,7 +40,8 @@ void Neuron::PropagateValue()
 	}
 	else // output neuron
 	{
-		return;
+		value += bias;
+		value = value > 0 ? value : 0;
 	}
 }
 
