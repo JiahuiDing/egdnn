@@ -86,6 +86,5 @@ int main(int argc, char *argv[])
 		lastError = error;
 	}
 	
-	
 	return 0;
 }
