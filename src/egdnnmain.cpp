@@ -2,60 +2,75 @@
 #include "neuron.h"
 #include "connection.h"
 #include "network.h"
+#include "helper.h"
 #include <iostream>
 #include <cstdio>
 #include <unistd.h>
 #include <cmath>
 using namespace EGDNN;
 
-double X_data[4][2] = { {0,0}, {0,1}, {1,0}, {1,1} };
-double Y_data[4] = { 0, 1, 1, 0 };
-
 int main(int argc, char *argv[])
 {
 	srand(getpid());
-	Neuron *neuron1 = new Neuron(1, Neuron::input);
-	Neuron *neuron2 = new Neuron(2, Neuron::input);
-	Neuron *neuron3 = new Neuron(3, Neuron::hidden);
-	Neuron *neuron4 = new Neuron(4, Neuron::hidden);
-	Neuron *neuron5 = new Neuron(5, Neuron::hidden);
-	Neuron *neuron6 = new Neuron(6, Neuron::hidden);
-	Neuron *neuron7 = new Neuron(7, Neuron::output);
 	
-	neuron1->AddOutNeuron(neuron3);
-	neuron1->AddOutNeuron(neuron4);
-	neuron1->AddOutNeuron(neuron5);
-	neuron1->AddOutNeuron(neuron6);
-	neuron2->AddOutNeuron(neuron3);
-	neuron2->AddOutNeuron(neuron4);
-	neuron2->AddOutNeuron(neuron5);
-	neuron2->AddOutNeuron(neuron6);
-	neuron3->AddOutNeuron(neuron7);
-	neuron4->AddOutNeuron(neuron7);
-	neuron5->AddOutNeuron(neuron7);
-	neuron6->AddOutNeuron(neuron7);
+	int hidden_N = 100;
 	
-	neuron3->AddInNeuron(neuron1);
-	neuron4->AddInNeuron(neuron1);
-	neuron5->AddInNeuron(neuron1);
-	neuron6->AddInNeuron(neuron1);
-	neuron3->AddInNeuron(neuron2);
-	neuron4->AddInNeuron(neuron2);
-	neuron5->AddInNeuron(neuron2);
-	neuron6->AddInNeuron(neuron2);
-	neuron7->AddInNeuron(neuron3);
-	neuron7->AddInNeuron(neuron4);
-	neuron7->AddInNeuron(neuron5);
-	neuron7->AddInNeuron(neuron6);
+	//int training_image_N, training_image_szie;
+	int test_image_N, test_image_size;
+	//uchar **training_dataset = read_mnist_images("mnist/train-images.idx3-ubyte", training_image_N, training_image_szie);
+	//uchar *training_labels = read_mnist_labels("mnist/train-labels.idx1-ubyte", training_image_N);
+	uchar **test_dataset = read_mnist_images("mnist/t10k-images.idx3-ubyte", test_image_N, test_image_size);
+	uchar *test_labels = read_mnist_labels("mnist/t10k-labels.idx1-ubyte", test_image_N);
+	
+	Neuron *input_neurons[test_image_size];
+	for(int i = 0; i < test_image_size; i++)
+	{
+		input_neurons[i] = new Neuron(i, Neuron::input);
+	}
+	
+	Neuron *output_neurons[10];
+	for(int i = 0; i < 10; i++)
+	{
+		output_neurons[i] = new Neuron(i + test_image_size, Neuron::output);
+	}
+	
+	Neuron *hidden_neurons[hidden_N];
+	for(int i = 0; i < hidden_N; i++)
+	{
+		hidden_neurons[i] = new Neuron(i + test_image_size + 10, Neuron::hidden);
+	}
+	
+	for(int i = 0; i < test_image_size; i++)
+	{
+		for(int j = 0; j < hidden_N; j++)
+		{
+			input_neurons[i]->AddOutNeuron(hidden_neurons[j]);
+			hidden_neurons[j]->AddInNeuron(input_neurons[i]);
+		}
+	}
+	
+	for(int i = 0; i < hidden_N; i++)
+	{
+		for(int j = 0; j < 10; j++)
+		{
+			hidden_neurons[i]->AddOutNeuron(output_neurons[j]);
+			output_neurons[j]->AddInNeuron(hidden_neurons[i]);
+		}
+	}
 	
 	Network network;
-	network.AddNeuron(neuron1);
-	network.AddNeuron(neuron2);
-	network.AddNeuron(neuron3);
-	network.AddNeuron(neuron4);
-	network.AddNeuron(neuron5);
-	network.AddNeuron(neuron6);
-	network.AddNeuron(neuron7);
+	for(int i = 0; i < test_image_size; i++)
+	{
+		network.AddNeuron(input_neurons[i]);
+	}
+	for(int i = 0; i < 10; i++)
+	{
+		network.AddNeuron(output_neurons[i]);
+	}
+	for(int i = 0; i < hidden_N; i++)
+	{
+		network.AddNeuron(hidden_neurons[i]);
+	}
 	
 	double lastError = 1e9;
 	int cnt = 0;
@@ -63,22 +78,36 @@ int main(int argc, char *argv[])
 	{
 		std::cout << "iteration : " << cnt++ << "\n";
 		double error = 0;
-		for(int i = 0; i < 4; i++)
+		for(int i = 0; i < test_image_N; i++)
 		{
-			neuron1->value = X_data[i][0];
-			neuron2->value = X_data[i][1];
-			neuron7->trueValue = Y_data[i];
+			for(int j = 0; j < test_image_size; j++)
+			{
+				input_neurons[j]->value = (double)test_dataset[i][j] / 256;
+			}
 			
-			// network.Display();
+			for(int j = 0; j < 10; j++)
+			{
+				if((int)test_labels[i] == j)
+				{
+					output_neurons[j]->trueValue = 1;
+				}
+				else
+				{
+					output_neurons[j]->trueValue = 0;
+				}
+			}
+			
 			network.ForwardPropagation();
 			network.BackPropagation();
 			network.UpdateWeight();
 			
-			std::cout << "value : " << neuron7->value << " , " << "trueValue : " << neuron7->trueValue << "\n";
-			error += network.CalError();
+			double tmperror = network.CalError();
+			error += tmperror;
+			
+			std::cout << i << " " << tmperror << "\n";
 		}
 		
-		std::cout << " " << error / 4 << "\n";
+		std::cout << " " << error / test_image_N << "\n";
 		if(fabs(lastError - error) < 1e-12)
 		{
 			break;
