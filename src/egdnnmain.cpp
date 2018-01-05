@@ -13,34 +13,32 @@ int main(int argc, char *argv[])
 {
 	srand(getpid());
 	
-	int hidden_N = 100;
+	int data_N = 4;
+	double data_X[4][2] = { {0,0}, {0,1}, {1,0}, {1,1} };
+	double data_Y[4][1] = { {0}, {1}, {1}, {0} };
 	
-	//int training_image_N, training_image_szie;
-	int test_image_N, test_image_size;
-	//uchar **training_dataset = read_mnist_images("mnist/train-images.idx3-ubyte", training_image_N, training_image_szie);
-	//uchar *training_labels = read_mnist_labels("mnist/train-labels.idx1-ubyte", training_image_N);
-	uchar **test_dataset = read_mnist_images("mnist/t10k-images.idx3-ubyte", test_image_N, test_image_size);
-	uchar *test_labels = read_mnist_labels("mnist/t10k-labels.idx1-ubyte", test_image_N);
+	int input_N = 2;
+	int hidden_N = 4;
+	int output_N = 1;
 	
-	Neuron *input_neurons[test_image_size];
-	for(int i = 0; i < test_image_size; i++)
+	Neuron *input_neurons[input_N];
+	Neuron *hidden_neurons[hidden_N];
+	Neuron *output_neurons[output_N];
+	
+	for(int i = 0; i < input_N; i++)
 	{
 		input_neurons[i] = new Neuron(i, Neuron::input);
 	}
-	
-	Neuron *output_neurons[10];
-	for(int i = 0; i < 10; i++)
-	{
-		output_neurons[i] = new Neuron(i + test_image_size, Neuron::output);
-	}
-	
-	Neuron *hidden_neurons[hidden_N];
 	for(int i = 0; i < hidden_N; i++)
 	{
-		hidden_neurons[i] = new Neuron(i + test_image_size + 10, Neuron::hidden);
+		hidden_neurons[i] = new Neuron(i + input_N, Neuron::hidden);
+	}
+	for(int i = 0; i < output_N; i++)
+	{
+		output_neurons[i] = new Neuron(i + input_N + hidden_N, Neuron::output);
 	}
 	
-	for(int i = 0; i < test_image_size; i++)
+	for(int i = 0; i < input_N; i++)
 	{
 		for(int j = 0; j < hidden_N; j++)
 		{
@@ -51,7 +49,7 @@ int main(int argc, char *argv[])
 	
 	for(int i = 0; i < hidden_N; i++)
 	{
-		for(int j = 0; j < 10; j++)
+		for(int j = 0; j < output_N; j++)
 		{
 			hidden_neurons[i]->AddOutNeuron(output_neurons[j]);
 			output_neurons[j]->AddInNeuron(hidden_neurons[i]);
@@ -59,62 +57,47 @@ int main(int argc, char *argv[])
 	}
 	
 	Network network;
-	for(int i = 0; i < test_image_size; i++)
+	for(int i = 0; i < input_N; i++)
 	{
 		network.AddNeuron(input_neurons[i]);
-	}
-	for(int i = 0; i < 10; i++)
-	{
-		network.AddNeuron(output_neurons[i]);
 	}
 	for(int i = 0; i < hidden_N; i++)
 	{
 		network.AddNeuron(hidden_neurons[i]);
 	}
+	for(int i = 0; i < output_N; i++)
+	{
+		network.AddNeuron(output_neurons[i]);
+	}
 	
-	double lastError = 1e9;
-	int cnt = 0;
+	int iterCnt = 0;
 	while(true)
 	{
-		std::cout << "iteration : " << cnt++ << "\n";
-		double error = 0;
-		for(int i = 0; i < test_image_N; i++)
+		std::cout << "iter : " << ++iterCnt << "\n";
+		for(int i = 0; i < data_N; i++)
 		{
-			for(int j = 0; j < test_image_size; j++)
+			int choose_data = rand() % data_N;
+			for(int j = 0; j < input_N; j++)
 			{
-				input_neurons[j]->value = (double)test_dataset[i][j] / 256;
+				input_neurons[j]->value = data_X[choose_data][j];
 			}
-			
-			for(int j = 0; j < 10; j++)
+			for(int j = 0; j < output_N; j++)
 			{
-				if((int)test_labels[i] == j)
-				{
-					output_neurons[j]->trueValue = 1;
-				}
-				else
-				{
-					output_neurons[j]->trueValue = 0;
-				}
+				output_neurons[j]->trueValue = data_Y[choose_data][j];
 			}
 			
 			network.ForwardPropagation();
 			network.BackPropagation();
 			network.UpdateWeight();
 			
-			double tmperror = network.CalError();
-			error += tmperror;
+			//network.Display();
 			
-			std::cout << i << " " << tmperror << "\n";
+			std::cout << "trueValue : " << output_neurons[0]->trueValue << " , ";
+			std::cout << "activeValue : " << output_neurons[0]->activeValue << "\n";
+			//getchar();
 		}
-		
-		std::cout << " " << error / test_image_N << "\n";
-		if(fabs(lastError - error) < 1e-12)
-		{
-			break;
-		}
-		lastError = error;
-		
-		// getchar();
+		std::cout << "error : " << network.CalError() << "\n";
+		//getchar();
 	}
 	
 	return 0;

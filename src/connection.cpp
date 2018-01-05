@@ -3,7 +3,8 @@ using namespace EGDNN;
 
 Connection::Connection(Neuron *neuron) : neuron(neuron)
 {
-	weight = fRand(-1, 1);
+	weight = fRand(0, 1);
+	sumGradient = 0;
 }
 
 void Connection::AddGradient(double gradient)

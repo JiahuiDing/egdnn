@@ -4,9 +4,16 @@ using namespace EGDNN;
 
 Neuron::Neuron(int tag, Type type) : tag(tag), type(type)
 {
-	bias = fRand(-1, 1);
+	bias = fRand(0, 1);
 	outConnections.clear();
 	inConnections.clear();
+	
+	value = 0;
+	activeValue = 0;
+	trueValue = 0;
+	gradient = 0;
+	sumGradient = 0;
+	counter = 0;
 }
 
 Neuron::~Neuron()
@@ -15,33 +22,37 @@ Neuron::~Neuron()
 	inConnections.clear();
 }
 
-// calculate the value of all neuron in the network
+// calculate the value and activeValue of all neuron in the network
 void Neuron::PropagateValue()
 {
 	if(type == input) // input neuron
 	{
-		for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+		activeValue = value;
+		if(fabs(activeValue) > eps)
 		{
-			it->neuron->value += it->weight * value;
+			for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+			{
+				it->neuron->value += it->weight * activeValue;
+			}
 		}
 	}
 	else if(type == hidden) // hidden neuron
 	{
 		value += bias;
-		value = value > 0 ? value : 0;
+		activeValue = Relu(value);
 	
-		if(value > 0)
+		if(fabs(activeValue) > eps)
 		{
 			for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 			{
-				it->neuron->value += it->weight * value;
+				it->neuron->value += it->weight * activeValue;
 			}
 		}
 	}
 	else // output neuron
 	{
 		value += bias;
-		value = value > 0 ? value : 0;
+		activeValue = Relu(value);
 	}
 }
 
@@ -50,33 +61,32 @@ void Neuron::CalGradient()
 {
 	if(type == input) // input neuron
 	{
-		for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+		if(fabs(activeValue) > eps)
 		{
-			it->AddGradient(it->neuron->gradient * value);
+			for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+			{
+				it->AddGradient(it->neuron->gradient * activeValue);
+			}
 		}
 	}
 	else if(type == hidden) // hidden neuron
 	{
 		gradient = 0;
-		
-		if(value > 0)
+		for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 		{
-			for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
-			{
-				gradient += it->neuron->gradient * it->weight;
-			}
-			sumGradient += gradient;
+			gradient += it->neuron->gradient * it->weight;
 		}
+		gradient *= ReluGrad(value);
+		sumGradient += gradient;
 		
 		for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 		{
-			it->AddGradient(it->neuron->gradient * value);
+			it->AddGradient(it->neuron->gradient * activeValue);
 		}
 	}
 	else // output neuron
 	{
-		gradient = trueValue - value;
-		gradient = value > 0 ? gradient : 0;
+		gradient = - MeanSquareErrorGrad(activeValue, trueValue) * ReluGrad(value);
 		sumGradient += gradient;
 	}
 }
@@ -99,6 +109,7 @@ void Neuron::ResetState()
 	{
 		value = 0;
 	}
+	activeValue = 0;
 	if(type != output)
 	{
 		trueValue = 0;
@@ -126,6 +137,11 @@ void Neuron::AddOutNeuron(Neuron *neuron)
 void Neuron::AddInNeuron(Neuron *neuron)
 {
 	inConnections.push_back(Connection(neuron));
+}
+
+double Neuron::CalError()
+{
+	return type == output ? MeanSquareError(activeValue, trueValue) : 0;
 }
 
 // display all states
@@ -162,4 +178,60 @@ void Neuron::Display()
 	std::cout << "\n";
 	
 	std::cout << "value : " << value << " , " << "trueValue : " << trueValue << " , " << "gradient : " << gradient << " , " << "counter : " << counter << "\n\n";
+}
+
+
+double Neuron::Relu(double x)
+{
+	return x > eps ? x : 0;
+}
+
+double Neuron::ReluGrad(double x)
+{
+	return x > eps ? 1 : 0;
+}
+
+double Neuron::Sigmoid(double x)
+{
+	return 1 / (1 + exp(-x));
+}
+
+double Neuron::SigmoidGrad(double x)
+{
+	double fx = Sigmoid(x);
+	return fx * (1 - fx);
+}
+
+double Neuron::MeanSquareError(double activeY, double trueY)
+{
+	return 0.5 * (activeY - trueY) * (activeY - trueY);
+}
+
+double Neuron::MeanSquareErrorGrad(double activeY, double trueY)
+{
+	return activeY - trueY;
+}
+
+double Neuron::BinaryCrossEntropy(double activeY, double trueY)
+{
+	if(trueY == 0)
+	{
+		return -log(1 - activeY);
+	}
+	else
+	{
+		return -log(activeY);
+	}
+}
+
+double Neuron::BinaryCrossEntropyGrad(double activeY, double trueY)
+{
+	if(trueY == 0)
+	{
+		return 1 / (1 - activeY);
+	}
+	else
+	{
+		return - 1 / activeY;
+	}
 }

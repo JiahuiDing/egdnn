@@ -2,7 +2,8 @@
 
 namespace EGDNN
 {
-	double learning_rate = 1e-4;
+	double eps = 1e-12;
+	double learning_rate = 1e-2;
 	
 	double fRand(double fMin, double fMax)
 	{

@@ -115,10 +115,29 @@ double Network::CalError()
 		Neuron *neuron = *it;
 		if(neuron->type == Neuron::output)
 		{
-			error += (neuron->value - neuron->trueValue) * (neuron->value - neuron->trueValue);
+			error += neuron->CalError();
 		}
 	}
 	return error;
+}
+
+int Network::CalMaxLabel()
+{
+	double maxValue = -1e10;
+	int maxLabel = -1;
+	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	{
+		Neuron *neuron = *it;
+		if(neuron->type == Neuron::output)
+		{
+			if(neuron->value > maxValue)
+			{
+				maxValue = neuron->value;
+				maxLabel = neuron->tag;
+			}
+		}
+	}
+	return maxLabel;
 }
 
 void Network::AddNeuron(Neuron *neuron)

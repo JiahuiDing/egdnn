@@ -3,6 +3,7 @@
 
 #include "connection.h"
 #include "helper.h"
+#include <cmath>
 #include <vector>
 
 namespace EGDNN
@@ -19,9 +20,10 @@ namespace EGDNN
 		std::vector<Connection> outConnections;
 		std::vector<Connection> inConnections; // inConnection does not contain weight
 		
-		double value;
+		double value; // this is the value before apply active function
+		double activeValue; // this is the value after apply active function
 		double trueValue;
-		double gradient;
+		double gradient; // store the gradient of value, not activeValue
 		double sumGradient;
 		int counter;
 		
@@ -34,7 +36,18 @@ namespace EGDNN
 		void PropagateCounter();
 		void AddOutNeuron(Neuron *neuron);
 		void AddInNeuron(Neuron *neuron);
+		double CalError();
 		void Display();
+		
+		double Relu(double x);
+		double ReluGrad(double x);
+		double Sigmoid(double x);
+		double SigmoidGrad(double x);
+		
+		double MeanSquareError(double activeY, double trueY);
+		double MeanSquareErrorGrad(double activeY,double trueY);
+		double BinaryCrossEntropy(double activeY, double trueY);
+		double BinaryCrossEntropyGrad(double activeY, double trueY);
 	};
 }
 
