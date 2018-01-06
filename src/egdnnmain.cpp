@@ -13,29 +13,17 @@ int main(int argc, char *argv[])
 {
 	srand(getpid());
 	
-	int data_N;
+	int batch_size = 100; // update weight and bias after seeing batch_size number of datas
+	int training_data_N;
+	int test_data_N;
 	int input_N;
-	int hidden_N = 30;
+	int hidden_N = 300;
 	int output_N = 10;
-	uchar **dataset = read_mnist_images("mnist/t10k-images.idx3-ubyte", data_N, input_N);
-	uchar *labels = read_mnist_labels("mnist/t10k-labels.idx1-ubyte", data_N);
 	
-	std::cout << (int)labels[15] << "\n";
-	for(int i = 0; i < 28; i++)
-	{
-		for(int j = 0; j < 28; j++)
-		{
-			if((int)dataset[15][i * 28 + j] > 0)
-				std::cout << 1;
-			else
-				std::cout << 0;
-		}
-		std::cout << "\n";
-		//std::cout << (int)labels[i] << "\n";
-	}
-	getchar();
-	//uchar dataset[4][2] = { {0,0}, {0,1}, {1,0}, {1,1} };
-	//uchar labels[4] = { 0, 1, 1, 0};
+	uchar **training_dataset = read_mnist_images("mnist/train-images.idx3-ubyte", training_data_N, input_N);
+	uchar *training_labels = read_mnist_labels("mnist/train-labels.idx1-ubyte", training_data_N);
+	uchar **test_dataset = read_mnist_images("mnist/t10k-images.idx3-ubyte", test_data_N, input_N);
+	uchar *test_labels = read_mnist_labels("mnist/t10k-labels.idx1-ubyte", test_data_N);
 	
 	Neuron *input_neurons[input_N];
 	Neuron *hidden_neurons[hidden_N];
@@ -86,55 +74,80 @@ int main(int argc, char *argv[])
 		network.AddNeuron(output_neurons[i]);
 	}
 	
-	int iterCnt = 0;
-	int rightCnt = 0;
+	// training
+	int trainingIterCnt = 0;
+	double lastError = 1e10;
 	while(true)
 	{
-		std::cout << "iter : " << ++iterCnt << "\n";
+		trainingIterCnt++;
+		double error = 0;
+		int rightCnt = 0;
+		for(int data_i = 0; data_i < training_data_N; data_i++)
+		{
+			for(int i = 0; i < input_N; i++)
+			{
+				input_neurons[i]->value = (double)training_dataset[data_i][i] / 255;
+			}
+			for(int i = 0; i < output_N; i++)
+			{
+				output_neurons[i]->trueValue = 0;
+			}
+			output_neurons[(int)training_labels[data_i]]->trueValue = 1;
 		
-		int choose_data = rand() % data_N;
+			network.ForwardPropagation();
+			network.BackPropagation();
+			if(data_i % batch_size == 0)
+			{
+				network.UpdateWeight();
+			}
+			
+			error += network.CalError();
+			if(network.CalMaxLabel() == (int)training_labels[data_i])
+			{
+				rightCnt++;
+			}
+			
+			if(data_i % 1000 == 0)
+			{
+				std::cout << "trainingIterCnt : " << trainingIterCnt << "\n";
+				std::cout << "data_i : " <<data_i << "\n";
+				std::cout << "error : " << error / (data_i + 1) << "\n";
+				std::cout << "accuracy : " << (double)rightCnt / (data_i + 1) << "\n\n";
+			}
+		}
+		error /= training_data_N;
+		if(fabs(lastError - error) < 1e-8)
+		{
+			break;
+		}
+		lastError = error;
+	}
+	
+	// test
+	double error = 0;
+	int rightCnt = 0;
+	for(int data_i = 0; data_i < test_data_N; data_i++)
+	{
 		for(int i = 0; i < input_N; i++)
 		{
-			input_neurons[i]->value = (double)dataset[choose_data][i];
+			input_neurons[i]->value = (double)test_dataset[data_i][i] / 255;
 		}
 		for(int i = 0; i < output_N; i++)
 		{
 			output_neurons[i]->trueValue = 0;
 		}
-		output_neurons[(int)labels[choose_data]]->trueValue = 1;
+		output_neurons[(int)test_labels[data_i]]->trueValue = 1;
 		
 		network.ForwardPropagation();
-		network.BackPropagation();
-		network.UpdateWeight();
 		
-		std::cout << "trueValue : \t";
-		for(int i = 0; i < output_N; i++)
+		error += network.CalError();
+		if(network.CalMaxLabel() == (int)test_labels[data_i])
 		{
-			std::cout << output_neurons[i]->trueValue << " , ";
-		}
-		std::cout << "\n";
-		
-		std::cout << "activeValue : \t";
-		for(int i = 0; i < output_N; i++)
-		{
-			std::cout << output_neurons[i]->activeValue << " , ";
-		}
-		std::cout << "\n";
-		
-		std::cout << "error : " << network.CalError() << "\n";
-		
-		if(network.CalMaxLabel() == (int)labels[choose_data])
-		{
-			std::cout << "right\t";
 			rightCnt++;
 		}
-		else
-		{
-			std::cout << "wrong\t";
-		}
-		std::cout << "rate : " << (double)rightCnt / iterCnt << "\n\n";
-		//getchar();
 	}
+	std::cout << "test error : " << error / test_data_N << "\n";
+	std::cout << "test accuracy : " << (double)rightCnt / test_data_N << "\n\n";
 	
 	return 0;
 }
