@@ -13,13 +13,29 @@ int main(int argc, char *argv[])
 {
 	srand(getpid());
 	
-	int data_N = 4;
-	double data_X[4][2] = { {0,0}, {0,1}, {1,0}, {1,1} };
-	double data_Y[4][1] = { {0}, {1}, {1}, {0} };
+	int data_N;
+	int input_N;
+	int hidden_N = 30;
+	int output_N = 10;
+	uchar **dataset = read_mnist_images("mnist/t10k-images.idx3-ubyte", data_N, input_N);
+	uchar *labels = read_mnist_labels("mnist/t10k-labels.idx1-ubyte", data_N);
 	
-	int input_N = 2;
-	int hidden_N = 4;
-	int output_N = 1;
+	std::cout << (int)labels[15] << "\n";
+	for(int i = 0; i < 28; i++)
+	{
+		for(int j = 0; j < 28; j++)
+		{
+			if((int)dataset[15][i * 28 + j] > 0)
+				std::cout << 1;
+			else
+				std::cout << 0;
+		}
+		std::cout << "\n";
+		//std::cout << (int)labels[i] << "\n";
+	}
+	getchar();
+	//uchar dataset[4][2] = { {0,0}, {0,1}, {1,0}, {1,1} };
+	//uchar labels[4] = { 0, 1, 1, 0};
 	
 	Neuron *input_neurons[input_N];
 	Neuron *hidden_neurons[hidden_N];
@@ -27,15 +43,15 @@ int main(int argc, char *argv[])
 	
 	for(int i = 0; i < input_N; i++)
 	{
-		input_neurons[i] = new Neuron(i, Neuron::input);
+		input_neurons[i] = new Neuron(-1, Neuron::input);
 	}
 	for(int i = 0; i < hidden_N; i++)
 	{
-		hidden_neurons[i] = new Neuron(i + input_N, Neuron::hidden);
+		hidden_neurons[i] = new Neuron(-1, Neuron::hidden);
 	}
 	for(int i = 0; i < output_N; i++)
 	{
-		output_neurons[i] = new Neuron(i + input_N + hidden_N, Neuron::output);
+		output_neurons[i] = new Neuron(i, Neuron::output);
 	}
 	
 	for(int i = 0; i < input_N; i++)
@@ -71,32 +87,52 @@ int main(int argc, char *argv[])
 	}
 	
 	int iterCnt = 0;
+	int rightCnt = 0;
 	while(true)
 	{
 		std::cout << "iter : " << ++iterCnt << "\n";
-		for(int i = 0; i < data_N; i++)
+		
+		int choose_data = rand() % data_N;
+		for(int i = 0; i < input_N; i++)
 		{
-			int choose_data = rand() % data_N;
-			for(int j = 0; j < input_N; j++)
-			{
-				input_neurons[j]->value = data_X[choose_data][j];
-			}
-			for(int j = 0; j < output_N; j++)
-			{
-				output_neurons[j]->trueValue = data_Y[choose_data][j];
-			}
-			
-			network.ForwardPropagation();
-			network.BackPropagation();
-			network.UpdateWeight();
-			
-			//network.Display();
-			
-			std::cout << "trueValue : " << output_neurons[0]->trueValue << " , ";
-			std::cout << "activeValue : " << output_neurons[0]->activeValue << "\n";
-			//getchar();
+			input_neurons[i]->value = (double)dataset[choose_data][i];
 		}
+		for(int i = 0; i < output_N; i++)
+		{
+			output_neurons[i]->trueValue = 0;
+		}
+		output_neurons[(int)labels[choose_data]]->trueValue = 1;
+		
+		network.ForwardPropagation();
+		network.BackPropagation();
+		network.UpdateWeight();
+		
+		std::cout << "trueValue : \t";
+		for(int i = 0; i < output_N; i++)
+		{
+			std::cout << output_neurons[i]->trueValue << " , ";
+		}
+		std::cout << "\n";
+		
+		std::cout << "activeValue : \t";
+		for(int i = 0; i < output_N; i++)
+		{
+			std::cout << output_neurons[i]->activeValue << " , ";
+		}
+		std::cout << "\n";
+		
 		std::cout << "error : " << network.CalError() << "\n";
+		
+		if(network.CalMaxLabel() == (int)labels[choose_data])
+		{
+			std::cout << "right\t";
+			rightCnt++;
+		}
+		else
+		{
+			std::cout << "wrong\t";
+		}
+		std::cout << "rate : " << (double)rightCnt / iterCnt << "\n\n";
 		//getchar();
 	}
 	

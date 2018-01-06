@@ -59,6 +59,8 @@ void Network::ForwardPropagation()
 			}
 		}
 	}
+	
+	//Softmax();
 }
 
 void Network::BackPropagation()
@@ -107,6 +109,42 @@ void Network::UpdateWeight()
 	}
 }
 
+void Network::Softmax()
+{
+	double maxValue = 0;
+	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	{
+		Neuron *neuron = *it;
+		if(neuron->type == Neuron::output)
+		{
+			if(neuron->value > maxValue)
+			{
+				maxValue = neuron->value;
+			}
+		}
+	}
+	
+	double sumExpValue = 0;
+	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	{
+		Neuron *neuron = *it;
+		if(neuron->type == Neuron::output)
+		{
+			neuron->value -= maxValue;
+			sumExpValue += exp(neuron->value);
+		}
+	}
+	
+	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	{
+		Neuron *neuron = *it;
+		if(neuron->type == Neuron::output)
+		{
+			neuron->activeValue = exp(neuron->value) / sumExpValue;
+		}
+	}
+}
+
 double Network::CalError()
 {
 	double error = 0;
@@ -123,16 +161,16 @@ double Network::CalError()
 
 int Network::CalMaxLabel()
 {
-	double maxValue = -1e10;
+	double maxValue = -1;
 	int maxLabel = -1;
 	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
 		if(neuron->type == Neuron::output)
 		{
-			if(neuron->value > maxValue)
+			if(neuron->activeValue > maxValue)
 			{
-				maxValue = neuron->value;
+				maxValue = neuron->activeValue;
 				maxLabel = neuron->tag;
 			}
 		}

@@ -48,6 +48,8 @@ namespace EGDNN
 		double MeanSquareErrorGrad(double activeY,double trueY);
 		double BinaryCrossEntropy(double activeY, double trueY);
 		double BinaryCrossEntropyGrad(double activeY, double trueY);
+		double MultiCrossEntropy(double activeY, double trueY);
+		double MultiCrossEntropyGrad(double activeY, double trueY);
 	};
 }
 

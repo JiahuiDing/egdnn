@@ -39,7 +39,7 @@ void Neuron::PropagateValue()
 	else if(type == hidden) // hidden neuron
 	{
 		value += bias;
-		activeValue = Relu(value);
+		activeValue = Sigmoid(value);
 	
 		if(fabs(activeValue) > eps)
 		{
@@ -52,7 +52,7 @@ void Neuron::PropagateValue()
 	else // output neuron
 	{
 		value += bias;
-		activeValue = Relu(value);
+		activeValue = Sigmoid(value);
 	}
 }
 
@@ -76,7 +76,7 @@ void Neuron::CalGradient()
 		{
 			gradient += it->neuron->gradient * it->weight;
 		}
-		gradient *= ReluGrad(value);
+		gradient *= SigmoidGrad(value);
 		sumGradient += gradient;
 		
 		for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
@@ -86,7 +86,8 @@ void Neuron::CalGradient()
 	}
 	else // output neuron
 	{
-		gradient = - MeanSquareErrorGrad(activeValue, trueValue) * ReluGrad(value);
+		gradient = - MeanSquareErrorGrad(activeValue, trueValue) * SigmoidGrad(value);
+		//gradient = - MultiCrossEntropyGrad(activeValue, trueValue) * activeValue * (1 - activeValue);
 		sumGradient += gradient;
 	}
 }
@@ -214,7 +215,7 @@ double Neuron::MeanSquareErrorGrad(double activeY, double trueY)
 
 double Neuron::BinaryCrossEntropy(double activeY, double trueY)
 {
-	if(trueY == 0)
+	if(abs(trueY) < eps)
 	{
 		return -log(1 - activeY);
 	}
@@ -226,9 +227,32 @@ double Neuron::BinaryCrossEntropy(double activeY, double trueY)
 
 double Neuron::BinaryCrossEntropyGrad(double activeY, double trueY)
 {
-	if(trueY == 0)
+	if(abs(trueY) < eps)
 	{
 		return 1 / (1 - activeY);
+	}
+	else
+	{
+		return - 1 / activeY;
+	}
+}
+
+double Neuron::MultiCrossEntropy(double activeY, double trueY)
+{
+	if(abs(trueY) < eps)
+	{
+		return 0;
+	}
+	else
+	{
+		return - log(activeY);
+	}
+}
+double Neuron::MultiCrossEntropyGrad(double activeY, double trueY)
+{
+	if(abs(trueY) < eps)
+	{
+		return 0;
 	}
 	else
 	{
