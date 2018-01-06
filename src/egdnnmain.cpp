@@ -7,12 +7,14 @@
 #include <cstdio>
 #include <unistd.h>
 #include <cmath>
+#include <sys/time.h>
 using namespace EGDNN;
 
 int main(int argc, char *argv[])
 {
 	srand(getpid());
 	
+	int maxTrainingIter = 10;
 	int batch_size = 100; // update weight and bias after seeing batch_size number of datas
 	int training_data_N;
 	int test_data_N;
@@ -74,12 +76,13 @@ int main(int argc, char *argv[])
 		network.AddNeuron(output_neurons[i]);
 	}
 	
+	struct timeval start, end;
+	gettimeofday(&start, NULL);
 	// training
-	int trainingIterCnt = 0;
 	double lastError = 1e10;
-	while(true)
+	for(int trainingIterCnt = 0; trainingIterCnt < maxTrainingIter; trainingIterCnt++)
 	{
-		trainingIterCnt++;
+		int zeroCnt = 0;
 		double error = 0;
 		int rightCnt = 0;
 		for(int data_i = 0; data_i < training_data_N; data_i++)
@@ -107,12 +110,26 @@ int main(int argc, char *argv[])
 				rightCnt++;
 			}
 			
+			for(int i = 0; i < hidden_N; i++)
+			{
+				if(fabs(hidden_neurons[i]->activeValue) < eps)
+				{
+					zeroCnt++;
+				}
+			}
+			
 			if(data_i % 1000 == 0)
 			{
 				std::cout << "trainingIterCnt : " << trainingIterCnt << "\n";
-				std::cout << "data_i : " <<data_i << "\n";
+				std::cout << "data_i : " << data_i << "\n";
 				std::cout << "error : " << error / (data_i + 1) << "\n";
-				std::cout << "accuracy : " << (double)rightCnt / (data_i + 1) << "\n\n";
+				std::cout << "accuracy : " << (double)rightCnt / (data_i + 1) << "\n";
+				std::cout << "zeroRate : " << (double)zeroCnt / ((data_i + 1) * hidden_N) << "\n";
+				
+				gettimeofday(&end, NULL);
+				int timeuse = 1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec -start.tv_usec;
+				std::cout << "time : " << timeuse / 1000 << " ms\n\n";
+				gettimeofday(&start, NULL);
 			}
 		}
 		error /= training_data_N;

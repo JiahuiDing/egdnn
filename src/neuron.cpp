@@ -18,7 +18,16 @@ Neuron::Neuron(int tag, Type type) : tag(tag), type(type)
 
 Neuron::~Neuron()
 {
+	for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+	{
+		delete (*it);
+	}
 	outConnections.clear();
+	
+	for(std::set<Connection *>::iterator it = inConnections.begin(); it != inConnections.end(); it++)
+	{
+		delete (*it);
+	}
 	inConnections.clear();
 }
 
@@ -30,29 +39,29 @@ void Neuron::PropagateValue()
 		activeValue = value;
 		if(fabs(activeValue) > eps)
 		{
-			for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+			for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 			{
-				it->neuron->value += it->weight * activeValue;
+				(*it)->neuron->value += (*it)->weight * activeValue;
 			}
 		}
 	}
 	else if(type == hidden) // hidden neuron
 	{
 		value += bias;
-		activeValue = Sigmoid(value);
+		activeValue = Relu(value);
 	
 		if(fabs(activeValue) > eps)
 		{
-			for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+			for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 			{
-				it->neuron->value += it->weight * activeValue;
+				(*it)->neuron->value += (*it)->weight * activeValue;
 			}
 		}
 	}
 	else // output neuron
 	{
 		value += bias;
-		activeValue = Sigmoid(value);
+		activeValue = Relu(value);
 	}
 }
 
@@ -63,30 +72,34 @@ void Neuron::CalGradient()
 	{
 		if(fabs(activeValue) > eps)
 		{
-			for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+			for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 			{
-				it->AddGradient(it->neuron->gradient * activeValue);
+				(*it)->AddGradient((*it)->neuron->gradient * activeValue);
 			}
 		}
 	}
 	else if(type == hidden) // hidden neuron
 	{
 		gradient = 0;
-		for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
-		{
-			gradient += it->neuron->gradient * it->weight;
-		}
-		gradient *= SigmoidGrad(value);
-		sumGradient += gradient;
 		
-		for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+		if(fabs(activeValue) > eps)
 		{
-			it->AddGradient(it->neuron->gradient * activeValue);
+			for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+			{
+				gradient += (*it)->neuron->gradient * (*it)->weight;
+			}
+			gradient *= ReluGrad(value);
+			sumGradient += gradient;
+		
+			for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+			{
+				(*it)->AddGradient((*it)->neuron->gradient * activeValue);
+			}
 		}
 	}
 	else // output neuron
 	{
-		gradient = - MeanSquareErrorGrad(activeValue, trueValue) * SigmoidGrad(value);
+		gradient = - MeanSquareErrorGrad(activeValue, trueValue) * ReluGrad(value);
 		//gradient = - MultiCrossEntropyGrad(activeValue, trueValue) * activeValue * (1 - activeValue);
 		sumGradient += gradient;
 	}
@@ -97,9 +110,9 @@ void Neuron::UpdateWeight()
 {
 	bias += learning_rate * sumGradient;
 	sumGradient = 0;
-	for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+	for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 	{
-		it->UpdateWeight();
+		(*it)->UpdateWeight();
 	}
 }
 
@@ -122,22 +135,22 @@ void Neuron::ResetState()
 // Propagate counter
 void Neuron::PropagateCounter()
 {
-	for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+	for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 	{
-		it->neuron->counter++;
+		(*it)->neuron->counter++;
 	}
 }
 
 // add an output neuron
 void Neuron::AddOutNeuron(Neuron *neuron)
 {
-	outConnections.push_back(Connection(neuron));
+	outConnections.insert(new Connection(neuron));
 }
 
 // add an input neuron
 void Neuron::AddInNeuron(Neuron *neuron)
 {
-	inConnections.push_back(Connection(neuron));
+	inConnections.insert(new Connection(neuron));
 }
 
 double Neuron::CalError()
@@ -145,69 +158,42 @@ double Neuron::CalError()
 	return type == output ? MeanSquareError(activeValue, trueValue) : 0;
 }
 
-// display all states
 void Neuron::Display()
 {
-	std::cout << "neuron " << tag << " : ";
-	if(type == input)
-	{
-		std::cout << "input\n";
-	}
-	else if(type == hidden)
-	{
-		std::cout << "hidden\n";
-	}
-	else
-	{
-		std::cout << "output\n";
-	}
-	
-	std::cout << "bias : " << bias << "\n";
-	
-	std::cout << "outConnections : ";
-	for(std::vector<Connection>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
-	{
-		std::cout << it->neuron->tag << " " << it->weight << " , ";
-	}
-	std::cout << "\n";
-	
-	std::cout << "inConnections : ";
-	for(std::vector<Connection>::iterator it = inConnections.begin(); it != inConnections.end(); it++)
-	{
-		std::cout << it->neuron->tag << " " << it->weight << " , ";
-	}
-	std::cout << "\n";
-	
-	std::cout << "value : " << value << " , " << "trueValue : " << trueValue << " , " << "gradient : " << gradient << " , " << "counter : " << counter << "\n\n";
 }
 
-
+// Relu
 double Neuron::Relu(double x)
 {
 	return x > eps ? x : 0;
 }
 
+// The gradient of Relu
 double Neuron::ReluGrad(double x)
 {
 	return x > eps ? 1 : 0;
 }
 
+// Sigmoid
 double Neuron::Sigmoid(double x)
 {
 	return 1 / (1 + exp(-x));
 }
 
+// The gradient of Sigmoid
 double Neuron::SigmoidGrad(double x)
 {
 	double fx = Sigmoid(x);
 	return fx * (1 - fx);
 }
 
+// Mean Square Error
 double Neuron::MeanSquareError(double activeY, double trueY)
 {
 	return 0.5 * (activeY - trueY) * (activeY - trueY);
 }
 
+// The gradient of Mean Square Error
 double Neuron::MeanSquareErrorGrad(double activeY, double trueY)
 {
 	return activeY - trueY;

@@ -49,9 +49,9 @@ void Network::ForwardPropagation()
 		Neuron *neuron = readyNeurons.front();
 		readyNeurons.pop();
 		neuron->PropagateValue();
-		for(std::vector<Connection>::iterator it = neuron->outConnections.begin(); it != neuron->outConnections.end(); it++)
+		for(std::set<Connection *>::iterator it = neuron->outConnections.begin(); it != neuron->outConnections.end(); it++)
 		{
-			Neuron *outNeuron = it->neuron;
+			Neuron *outNeuron = (*it)->neuron;
 			outNeuron->counter--;
 			if(outNeuron->counter == 0)
 			{
@@ -88,9 +88,9 @@ void Network::BackPropagation()
 		Neuron *neuron = readyNeurons.front();
 		readyNeurons.pop();
 		neuron->CalGradient();
-		for(std::vector<Connection>::iterator it = neuron->inConnections.begin(); it != neuron->inConnections.end(); it++)
+		for(std::set<Connection *>::iterator it = neuron->inConnections.begin(); it != neuron->inConnections.end(); it++)
 		{
-			Neuron *inNeuron = it->neuron;
+			Neuron *inNeuron = (*it)->neuron;
 			inNeuron->counter--;
 			if(inNeuron->counter == 0)
 			{

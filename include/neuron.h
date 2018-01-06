@@ -5,6 +5,7 @@
 #include "helper.h"
 #include <cmath>
 #include <vector>
+#include <set>
 
 namespace EGDNN
 {
@@ -17,8 +18,8 @@ namespace EGDNN
 		int tag;
 		Type type;
 		double bias;
-		std::vector<Connection> outConnections;
-		std::vector<Connection> inConnections; // inConnection does not contain weight
+		std::set<Connection *> outConnections;
+		std::set<Connection *> inConnections; // inConnection does not contain weight
 		
 		double value; // this is the value before apply active function
 		double activeValue; // this is the value after apply active function
