@@ -3,13 +3,14 @@
 
 #include "neuron.h"
 #include <vector>
+#include <set>
 
 namespace EGDNN
 {
 	class Network
 	{
 		public:
-		std::vector<Neuron *> neurons;
+		std::set<Neuron *> neurons;
 		
 		Network();
 		~Network();

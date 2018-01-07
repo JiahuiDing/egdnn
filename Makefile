@@ -4,7 +4,7 @@ CPPFLAGS = -I include
 
 all: build egdnn
 
-egdnn: build/egdnnmain.o build/neuron.o build/connection.o build/network.o build/helper.o build/test.o
+egdnn: build/egdnnmain.o build/neuron.o build/connection.o build/network.o build/helper.o build/test.o build/egdnn.o
 	$(CC) $(CFLAGS) $(CPPFLAGS) $^ -o $@
 	
 build/egdnnmain.o: src/egdnnmain.cpp include/egdnnmain.h
@@ -23,6 +23,9 @@ build/helper.o: src/helper.cpp include/helper.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 
 build/test.o: src/test.cpp include/test.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
+	
+build/egdnn.o: src/egdnn.cpp include/egdnn.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c $< -o $@
 	
 build:

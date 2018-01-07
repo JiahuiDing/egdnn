@@ -10,7 +10,7 @@ Network::Network()
 
 Network::~Network()
 {	
-	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	for(std::set<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
 	{
 		delete (*it);
 	}
@@ -20,14 +20,14 @@ Network::~Network()
 void Network::ForwardPropagation()
 {
 	// clear all the state
-	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	for(std::set<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
 		neuron->ResetState();
 	}
 	
 	// calculate counter, used for topological sorting
-	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	for(std::set<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
 		neuron->PropagateCounter();
@@ -35,7 +35,7 @@ void Network::ForwardPropagation()
 	
 	// perform topological sorting to forward propagate all the value
 	std::queue<Neuron *> readyNeurons;
-	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	for(std::set<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
 		if(neuron->counter == 0)
@@ -66,7 +66,7 @@ void Network::ForwardPropagation()
 void Network::BackPropagation()
 {
 	// calculate counter, used for topological sorting
-	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	for(std::set<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
 		neuron->counter = neuron->outConnections.size();
@@ -74,7 +74,7 @@ void Network::BackPropagation()
 	
 	// perform topological sorting to back propagate all the value
 	std::queue<Neuron *> readyNeurons;
-	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	for(std::set<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
 		if(neuron->counter == 0)
@@ -102,7 +102,7 @@ void Network::BackPropagation()
 
 void Network::UpdateWeight()
 {
-	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	for(std::set<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
 		neuron->UpdateWeight();
@@ -112,7 +112,7 @@ void Network::UpdateWeight()
 void Network::Softmax()
 {
 	double maxValue = 0;
-	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	for(std::set<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
 		if(neuron->type == Neuron::output)
@@ -125,7 +125,7 @@ void Network::Softmax()
 	}
 	
 	double sumExpValue = 0;
-	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	for(std::set<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
 		if(neuron->type == Neuron::output)
@@ -135,7 +135,7 @@ void Network::Softmax()
 		}
 	}
 	
-	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	for(std::set<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
 		if(neuron->type == Neuron::output)
@@ -148,7 +148,7 @@ void Network::Softmax()
 double Network::CalError()
 {
 	double error = 0;
-	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	for(std::set<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
 		if(neuron->type == Neuron::output)
@@ -163,7 +163,7 @@ int Network::CalMaxLabel()
 {
 	double maxValue = -1;
 	int maxLabel = -1;
-	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	for(std::set<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
 		if(neuron->type == Neuron::output)
@@ -171,7 +171,7 @@ int Network::CalMaxLabel()
 			if(neuron->activeValue > maxValue)
 			{
 				maxValue = neuron->activeValue;
-				maxLabel = neuron->tag;
+				maxLabel = neuron->outputTag;
 			}
 		}
 	}
@@ -180,12 +180,12 @@ int Network::CalMaxLabel()
 
 void Network::AddNeuron(Neuron *neuron)
 {
-	neurons.push_back(neuron);
+	neurons.insert(neuron);
 }
 
 void Network::Display()
 {
-	for(std::vector<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
+	for(std::set<Neuron *>::iterator it = neurons.begin(); it != neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
 		neuron->Display();

@@ -2,9 +2,22 @@
 #include <iostream>
 using namespace EGDNN;
 
-Neuron::Neuron(int tag, Type type) : tag(tag), type(type)
+Neuron::Neuron(int outputTag, Type type) : outputTag(outputTag), type(type)
 {
 	bias = fRand(0, 1e-3);
+	outConnections.clear();
+	inConnections.clear();
+	
+	value = 0;
+	activeValue = 0;
+	trueValue = 0;
+	gradient = 0;
+	sumGradient = 0;
+	counter = 0;
+}
+
+Neuron::Neuron(Neuron *neuron) : outputTag(neuron->outputTag), type(neuron->type), bias(neuron->bias)
+{
 	outConnections.clear();
 	inConnections.clear();
 	

@@ -7,6 +7,11 @@ Connection::Connection(Neuron *neuron) : neuron(neuron)
 	sumGradient = 0;
 }
 
+Connection::Connection(Neuron *neuron, double weight) : neuron(neuron), weight(weight)
+{
+	sumGradient = 0;
+}
+
 void Connection::AddGradient(double gradient)
 {
 	sumGradient += gradient;

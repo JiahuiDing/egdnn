@@ -16,6 +16,7 @@ namespace EGDNN
 		public:
 		enum Type { input = 0, hidden = 1, output = 2};
 		int tag;
+		int outputTag;
 		Type type;
 		double bias;
 		std::set<Connection *> outConnections;
@@ -28,7 +29,8 @@ namespace EGDNN
 		double sumGradient;
 		int counter;
 		
-		Neuron(int tag, Type type);
+		Neuron(int outputTag, Type type);
+		Neuron(Neuron *neuron);
 		~Neuron();
 		void PropagateValue();
 		void CalGradient();
