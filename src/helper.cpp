@@ -112,4 +112,76 @@ namespace EGDNN
 		    throw std::runtime_error("Cannot open file `" + full_path + "`!");
 		}
 	}
+	
+	void read_mnist(std::vector<std::vector<double>> &trainingSet, std::vector<std::vector<double>> &trainingLabels, int &training_N, 
+					std::vector<std::vector<double>> &testSet, std::vector<std::vector<double>> &testLabels, int &test_N, 
+					int &input_N, int &output_N)
+	{
+		std::cout << "Begin loading mnist dataset!\n";
+		output_N = 10;
+		uchar **trainingSetMnist = read_mnist_images("mnist/train-images.idx3-ubyte", training_N, input_N);
+		uchar *trainingLabelsMnist = read_mnist_labels("mnist/train-labels.idx1-ubyte", training_N);
+		uchar **testSetMnist = read_mnist_images("mnist/t10k-images.idx3-ubyte", test_N, input_N);
+		uchar *testLabelsMnist = read_mnist_labels("mnist/t10k-labels.idx1-ubyte", test_N);
+		
+		trainingSet.resize(training_N);
+		for(int i = 0; i < training_N; i++)
+		{
+			trainingSet[i].resize(input_N);
+		}
+	
+		trainingLabels.resize(training_N);
+		for(int i = 0; i < training_N; i++)
+		{
+			trainingLabels[i].resize(output_N);
+		}
+	
+		testSet.resize(test_N);
+		for(int i = 0; i < test_N; i++)
+		{
+			testSet[i].resize(input_N);
+		}
+	
+		testLabels.resize(test_N);
+		for(int i = 0; i < test_N; i++)
+		{
+			testLabels[i].resize(output_N);
+		}
+	
+		for(int i = 0; i < training_N; i++)
+		{
+			for(int j = 0; j < input_N; j++)
+			{
+				trainingSet[i][j] = (double)trainingSetMnist[i][j] / 255;
+			}
+		}
+	
+		for(int i = 0; i < training_N; i++)
+		{
+			for(int j = 0; j < output_N; j++)
+			{
+				trainingLabels[i][j] = 0;
+			}
+			trainingLabels[i][(int)trainingLabelsMnist[i]] = 1;
+		}
+	
+		for(int i = 0; i < test_N; i++)
+		{
+			for(int j = 0; j < input_N; j++)
+			{
+				testSet[i][j] = (double)testSetMnist[i][j] / 255;
+			}
+		}
+	
+		for(int i = 0; i < test_N; i++)
+		{
+			for(int j = 0; j < output_N; j++)
+			{
+				testLabels[i][j] = 0;
+			}
+			testLabels[i][(int)testLabelsMnist[i]] = 1;
+		}
+		
+		std::cout << "Finish loading mnist dataset!\n";
+	}
 }

@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 namespace EGDNN
 {
@@ -26,6 +27,9 @@ namespace EGDNN
 	*/
 	uchar** read_mnist_images(std::string full_path, int& number_of_images, int& image_size);
 	uchar* read_mnist_labels(std::string full_path, int number_of_images);
+	void read_mnist(std::vector<std::vector<double>> &trainingSet, std::vector<std::vector<double>> &trainingLabels, int &training_N, 
+					std::vector<std::vector<double>> &testSet, std::vector<std::vector<double>> &testLabels, int &test_N, 
+					int &input_N, int &output_N);
 }
 
 #endif
