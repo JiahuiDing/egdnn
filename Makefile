@@ -33,4 +33,3 @@ build:
 
 clean: 
 	rm -rf build/ *~
-	rm egdnn
