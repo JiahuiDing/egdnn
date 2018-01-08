@@ -179,6 +179,10 @@ void Network::UpdateWeight()
 	}
 }
 
+void Network::Mutation()
+{
+}
+
 void Network::Softmax()
 {
 	double maxValue = 0;

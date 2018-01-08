@@ -19,6 +19,7 @@ namespace EGDNN
 		void ForwardPropagation();
 		void BackPropagation();
 		void UpdateWeight();
+		void Mutation();
 		void Softmax();
 		double CalError();
 		int CalZeroCnt(); // calculate the number of hidden neurons whose activeValue = 0
