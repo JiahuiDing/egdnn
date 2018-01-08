@@ -76,18 +76,20 @@ namespace EGDNN
 				}
 			}
 			
-			int maxRightCnt = -1;
+			double minError = 1e9;
 			int bestNetwork = -1;
 			std::cout << "iter " << iterCnt << " performance : \n";
 			for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
 			{
 				std::cout << "network " << networkCnt << " : ";
 				std::cout << "error " << error[networkCnt] / (evolutionTime * batchSize) << " , ";
-				std::cout << "accuracy " << (double)rightCnt[networkCnt] / (evolutionTime * batchSize) << "\n";
+				std::cout << "accuracy " << (double)rightCnt[networkCnt] / (evolutionTime * batchSize) << " , ";
+				std::cout << "neuronNum " << network[networkCnt]->CalNeuronNum() << " , ";
+				std::cout << "connectionNum " << network[networkCnt]->CalConnectionNum() << "\n";
 				
-				if(rightCnt[networkCnt] > maxRightCnt)
+				if(error[networkCnt] < minError)
 				{
-					maxRightCnt = rightCnt[networkCnt];
+					minError = error[networkCnt];
 					bestNetwork = networkCnt;
 				}
 			}

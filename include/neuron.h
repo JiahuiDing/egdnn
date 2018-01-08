@@ -28,6 +28,7 @@ namespace EGDNN
 		double sumGradient;
 		int counter;
 		int copyTag;
+		bool visited; // only used in Network::Reachable
 		
 		Neuron(int outputTag, Type type);
 		Neuron(Neuron *neuron); // Copy the outputTag, type, bias from another neuron. Cannot copy its connection.
@@ -41,7 +42,9 @@ namespace EGDNN
 		void AddOutNeuron(Neuron *neuron, double weight);
 		void AddInNeuron(Neuron *neuron);
 		double CalError();
-		void Display();
+		
+		bool ContainOutNeuron(Neuron *neuron);
+		bool ContainInNeuron(Neuron *neuron);
 		
 		double Relu(double x);
 		double ReluGrad(double x);

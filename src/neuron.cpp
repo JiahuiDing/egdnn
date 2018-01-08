@@ -178,8 +178,28 @@ double Neuron::CalError()
 	return type == output ? MeanSquareError(activeValue, trueValue) : 0;
 }
 
-void Neuron::Display()
+bool Neuron::ContainOutNeuron(Neuron *neuron)
 {
+	for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
+	{
+		if((*it)->neuron == neuron)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Neuron::ContainInNeuron(Neuron *neuron)
+{
+	for(std::set<Connection *>::iterator it = inConnections.begin(); it != inConnections.end(); it++)
+	{
+		if((*it)->neuron == neuron)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 // Relu

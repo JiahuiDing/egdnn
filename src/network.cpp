@@ -181,13 +181,13 @@ void Network::UpdateWeight()
 
 void Network::Mutate()
 {
-	int addHiddenNeuronNum = 1;
+	int newHiddenNeuronNum = 1;
 	double rateInputHidden = 0.2;
 	double rateHiddenOutput = 0.2;
 	double rateHiddenHidden = 0.2;
 	
-	// add 3 hidden neurons
-	for(int i = 0; i < addHiddenNeuronNum; i++)
+	// add hidden neurons
+	for(int i = 0; i < newHiddenNeuronNum; i++)
 	{
 		hidden_neurons.insert(new Neuron(-1, Neuron::hidden));
 	}
@@ -199,7 +199,7 @@ void Network::Mutate()
 		for(std::set<Neuron *>::iterator it2 = hidden_neurons.begin(); it2 != hidden_neurons.end(); it2++)
 		{
 			Neuron *neuron2 = *it2;
-			if(fRand(0,1) < rateInputHidden)
+			if(fRand(0,1) < rateInputHidden && neuron1->ContainOutNeuron(neuron2) == false)
 			{
 				neuron1->AddOutNeuron(neuron2);
 				neuron2->AddInNeuron(neuron1);
@@ -214,7 +214,7 @@ void Network::Mutate()
 		for(std::vector<Neuron *>::iterator it2 = output_neurons.begin(); it2 != output_neurons.end(); it2++)
 		{
 			Neuron *neuron2 = *it2;
-			if(fRand(0,1) < rateHiddenOutput)
+			if(fRand(0,1) < rateHiddenOutput && neuron1->ContainOutNeuron(neuron2) == false)
 			{
 				neuron1->AddOutNeuron(neuron2);
 				neuron2->AddInNeuron(neuron1);
@@ -229,18 +229,14 @@ void Network::Mutate()
 		for(std::set<Neuron *>::iterator it2 = hidden_neurons.begin(); it2 != hidden_neurons.end(); it2++)
 		{
 			Neuron *neuron2 = *it2;
-			if(neuron1 == neuron2)
+			if(neuron1 != neuron2 && fRand(0,1) < rateHiddenHidden)
 			{
-				continue;
-			}
-			if(fRand(0,1) < rateHiddenHidden)
-			{
-				if(Reachable(neuron2, neuron1) == false)
+				if(neuron1->ContainOutNeuron(neuron2) == false && Reachable(neuron2, neuron1) == false)
 				{
 					neuron1->AddOutNeuron(neuron2);
 					neuron2->AddInNeuron(neuron1);
 				}
-				else
+				else if(neuron2->ContainOutNeuron(neuron1) == false)
 				{
 					neuron2->AddOutNeuron(neuron1);
 					neuron1->AddInNeuron(neuron2);
@@ -288,7 +284,8 @@ double Network::CalError()
 	return error;
 }
 
-int Network::CalZeroCnt() // calculate the number of hidden neurons whose activeValue = 0
+// calculate the number of hidden neurons whose activeValue = 0
+int Network::CalZeroCnt()
 {
 	int zeroCnt = 0;
 	for(std::set<Neuron *>::iterator it = hidden_neurons.begin(); it != hidden_neurons.end(); it++)
@@ -302,21 +299,25 @@ int Network::CalZeroCnt() // calculate the number of hidden neurons whose active
 	return zeroCnt;
 }
 
-int Network::NeuronSize()
+// calculate the number of hidden neurons in the network
+int Network::CalNeuronNum()
 {
 	return hidden_neurons.size();
 }
 
-int Network::ConnectionSize()
+// calculate the number of connections in the network
+int Network::CalConnectionNum()
 {
 	int sum = 0;
 	for(std::vector<Neuron *>::iterator it = input_neurons.begin(); it != input_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		sum += neuron->outConnections.size();
+		sum += (neuron->outConnections).size();
 	}
-	for(std::vector<Neuron *>::iterator it = input_neurons.begin(); it != input_neurons.end(); it++)
+	for(std::set<Neuron *>::iterator it = hidden_neurons.begin(); it != hidden_neurons.end(); it++)
 	{
+		Neuron *neuron = *it;
+		sum += (neuron->outConnections).size();
 	}
 	return sum;
 }
@@ -339,7 +340,14 @@ int Network::CalMaxLabel()
 
 bool Network::Reachable(Neuron *s, Neuron *t)
 {
+	for(std::set<Neuron *>::iterator it = hidden_neurons.begin(); it != hidden_neurons.end(); it++)
+	{
+		Neuron *neuron = *it;
+		neuron->visited = false;
+	}
+	
 	std::queue<Neuron *> que;
+	s->visited = true;
 	que.push(s);
 	while(!que.empty())
 	{
@@ -352,7 +360,11 @@ bool Network::Reachable(Neuron *s, Neuron *t)
 		for(std::set<Connection *>::iterator it = neuron->outConnections.begin(); it != neuron->outConnections.end(); it++)
 		{
 			Neuron *outNeuron = (*it)->neuron;
-			que.push(outNeuron);
+			if(outNeuron->visited == false)
+			{
+				outNeuron->visited = true;
+				que.push(outNeuron);
+			}
 		}
 	}
 	return false;
@@ -472,8 +484,4 @@ Network * Network::copy()
 	}
 	
 	return new_network;
-}
-
-void Network::Display()
-{
 }

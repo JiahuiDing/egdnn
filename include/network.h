@@ -23,8 +23,8 @@ namespace EGDNN
 		void Softmax();
 		double CalError();
 		int CalZeroCnt(); // calculate the number of hidden neurons whose activeValue = 0
-		int NeuronSize(); // return the number of hidden neurons in the network
-		int ConnectionSize(); // return the number of connections in the network
+		int CalNeuronNum(); // calculate the number of hidden neurons in the network
+		int CalConnectionNum(); // calculate the number of connections in the network
 		int CalMaxLabel();
 		
 		bool Reachable(Neuron *s, Neuron *t);
@@ -36,7 +36,6 @@ namespace EGDNN
 		void SetOutputValue(std::vector<double> output_values);
 		
 		Network *copy();
-		void Display();
 	};
 }
 
