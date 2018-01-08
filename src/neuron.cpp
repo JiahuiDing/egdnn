@@ -16,6 +16,7 @@ Neuron::Neuron(int outputTag, Type type) : outputTag(outputTag), type(type)
 	counter = 0;
 }
 
+// Copy the outputTag, type, bias from another neuron. Cannot copy its connection.
 Neuron::Neuron(Neuron *neuron) : outputTag(neuron->outputTag), type(neuron->type), bias(neuron->bias)
 {
 	outConnections.clear();
@@ -158,6 +159,12 @@ void Neuron::PropagateCounter()
 void Neuron::AddOutNeuron(Neuron *neuron)
 {
 	outConnections.insert(new Connection(neuron));
+}
+
+// add an output neuron
+void Neuron::AddOutNeuron(Neuron *neuron, double weight)
+{
+	outConnections.insert(new Connection(neuron, weight));
 }
 
 // add an input neuron

@@ -6,7 +6,7 @@ using namespace EGDNN;
 
 int main(int argc, char *argv[])
 {
-	int populationSize = 5;
+	//int populationSize = 5;
 	int maxIter = 6;
 	int batchSize = 100;
 	

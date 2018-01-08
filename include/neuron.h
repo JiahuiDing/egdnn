@@ -15,7 +15,6 @@ namespace EGDNN
 	{	
 		public:
 		enum Type { input = 0, hidden = 1, output = 2};
-		int tag;
 		int outputTag;
 		Type type;
 		double bias;
@@ -28,9 +27,10 @@ namespace EGDNN
 		double gradient; // store the gradient of value, not activeValue
 		double sumGradient;
 		int counter;
+		int copyTag;
 		
 		Neuron(int outputTag, Type type);
-		Neuron(Neuron *neuron);
+		Neuron(Neuron *neuron); // Copy the outputTag, type, bias from another neuron. Cannot copy its connection.
 		~Neuron();
 		void PropagateValue();
 		void CalGradient();
@@ -38,6 +38,7 @@ namespace EGDNN
 		void ResetState();
 		void PropagateCounter();
 		void AddOutNeuron(Neuron *neuron);
+		void AddOutNeuron(Neuron *neuron, double weight);
 		void AddInNeuron(Neuron *neuron);
 		double CalError();
 		void Display();
