@@ -179,8 +179,75 @@ void Network::UpdateWeight()
 	}
 }
 
-void Network::Mutation()
+void Network::Mutate()
 {
+	int addHiddenNeuronNum = 1;
+	double rateInputHidden = 0.2;
+	double rateHiddenOutput = 0.2;
+	double rateHiddenHidden = 0.2;
+	
+	// add 3 hidden neurons
+	for(int i = 0; i < addHiddenNeuronNum; i++)
+	{
+		hidden_neurons.insert(new Neuron(-1, Neuron::hidden));
+	}
+	
+	// add new connections between input_neurons and hidden_neurons
+	for(std::vector<Neuron *>::iterator it1 = input_neurons.begin(); it1 != input_neurons.end(); it1++)
+	{
+		Neuron *neuron1 = *it1;
+		for(std::set<Neuron *>::iterator it2 = hidden_neurons.begin(); it2 != hidden_neurons.end(); it2++)
+		{
+			Neuron *neuron2 = *it2;
+			if(fRand(0,1) < rateInputHidden)
+			{
+				neuron1->AddOutNeuron(neuron2);
+				neuron2->AddInNeuron(neuron1);
+			}
+		}
+	}
+	
+	// add new connections between hidden_neurons and output_neurons
+	for(std::set<Neuron *>::iterator it1 = hidden_neurons.begin(); it1 != hidden_neurons.end(); it1++)
+	{
+		Neuron *neuron1 = *it1;
+		for(std::vector<Neuron *>::iterator it2 = output_neurons.begin(); it2 != output_neurons.end(); it2++)
+		{
+			Neuron *neuron2 = *it2;
+			if(fRand(0,1) < rateHiddenOutput)
+			{
+				neuron1->AddOutNeuron(neuron2);
+				neuron2->AddInNeuron(neuron1);
+			}
+		}
+	}
+	
+	// add new connections between hidden_neurons and hidden_neurons
+	for(std::set<Neuron *>::iterator it1 = hidden_neurons.begin(); it1 != hidden_neurons.end(); it1++)
+	{
+		Neuron *neuron1 = *it1;
+		for(std::set<Neuron *>::iterator it2 = hidden_neurons.begin(); it2 != hidden_neurons.end(); it2++)
+		{
+			Neuron *neuron2 = *it2;
+			if(neuron1 == neuron2)
+			{
+				continue;
+			}
+			if(fRand(0,1) < rateHiddenHidden)
+			{
+				if(Reachable(neuron2, neuron1) == false)
+				{
+					neuron1->AddOutNeuron(neuron2);
+					neuron2->AddInNeuron(neuron1);
+				}
+				else
+				{
+					neuron2->AddOutNeuron(neuron1);
+					neuron1->AddInNeuron(neuron2);
+				}
+			}
+		}
+	}
 }
 
 void Network::Softmax()
@@ -235,6 +302,25 @@ int Network::CalZeroCnt() // calculate the number of hidden neurons whose active
 	return zeroCnt;
 }
 
+int Network::NeuronSize()
+{
+	return hidden_neurons.size();
+}
+
+int Network::ConnectionSize()
+{
+	int sum = 0;
+	for(std::vector<Neuron *>::iterator it = input_neurons.begin(); it != input_neurons.end(); it++)
+	{
+		Neuron *neuron = *it;
+		sum += neuron->outConnections.size();
+	}
+	for(std::vector<Neuron *>::iterator it = input_neurons.begin(); it != input_neurons.end(); it++)
+	{
+	}
+	return sum;
+}
+
 int Network::CalMaxLabel()
 {
 	double maxValue = -1;
@@ -249,6 +335,27 @@ int Network::CalMaxLabel()
 		}
 	}
 	return maxLabel;
+}
+
+bool Network::Reachable(Neuron *s, Neuron *t)
+{
+	std::queue<Neuron *> que;
+	que.push(s);
+	while(!que.empty())
+	{
+		Neuron *neuron = que.front();
+		que.pop();
+		if(neuron == t)
+		{
+			return true;
+		}
+		for(std::set<Connection *>::iterator it = neuron->outConnections.begin(); it != neuron->outConnections.end(); it++)
+		{
+			Neuron *outNeuron = (*it)->neuron;
+			que.push(outNeuron);
+		}
+	}
+	return false;
 }
 
 void Network::AddInputNeuron(Neuron *neuron)

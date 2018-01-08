@@ -19,11 +19,15 @@ namespace EGDNN
 		void ForwardPropagation();
 		void BackPropagation();
 		void UpdateWeight();
-		void Mutation();
+		void Mutate();
 		void Softmax();
 		double CalError();
 		int CalZeroCnt(); // calculate the number of hidden neurons whose activeValue = 0
+		int NeuronSize(); // return the number of hidden neurons in the network
+		int ConnectionSize(); // return the number of connections in the network
 		int CalMaxLabel();
+		
+		bool Reachable(Neuron *s, Neuron *t);
 		
 		void AddInputNeuron(Neuron *neuron);
 		void AddHiddenNeuron(Neuron *neuron);

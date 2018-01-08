@@ -6,9 +6,10 @@ using namespace EGDNN;
 
 int main(int argc, char *argv[])
 {
-	int populationSize = 5;
-	int maxIter = 6;
+	int maxIter = 100;
 	int batchSize = 100;
+	int evolutionTime = 5;
+	int populationSize = 3;
 	
 	int training_N;
 	int test_N;
@@ -32,7 +33,7 @@ int main(int argc, char *argv[])
 	
 	EvolutionaryGradientDescentNeuralNetwork(trainingSet, trainingLabels, training_N, 
 											testSet, testLabels, test_N, 
-											input_N, output_N, maxIter, batchSize, populationSize);
+											input_N, output_N, maxIter, batchSize, evolutionTime, populationSize);
 	
 	return 0;
 }
