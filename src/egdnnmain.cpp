@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 {
 	int maxIter = 100;
 	int batchSize = 100;
-	int evolutionTime = 5;
+	int evolutionTime = 10;
 	int populationSize = 3;
 	
 	int training_N;

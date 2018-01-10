@@ -182,9 +182,9 @@ void Network::UpdateWeight()
 void Network::Mutate()
 {
 	int newHiddenNeuronNum = 1;
-	double rateInputHidden = 0.2;
-	double rateHiddenOutput = 0.2;
-	double rateHiddenHidden = 0.2;
+	double rateInputHidden = 0.05;
+	double rateHiddenOutput = 0.05;
+	double rateHiddenHidden = 0.05;
 	
 	// add hidden neurons
 	for(int i = 0; i < newHiddenNeuronNum; i++)
@@ -236,7 +236,7 @@ void Network::Mutate()
 					neuron1->AddOutNeuron(neuron2);
 					neuron2->AddInNeuron(neuron1);
 				}
-				else if(neuron2->ContainOutNeuron(neuron1) == false)
+				else if(neuron2->ContainOutNeuron(neuron1) == false && Reachable(neuron1, neuron2) == false)
 				{
 					neuron2->AddOutNeuron(neuron1);
 					neuron1->AddInNeuron(neuron2);
@@ -484,4 +484,14 @@ Network * Network::copy()
 	}
 	
 	return new_network;
+}
+
+void Network::Display()
+{
+	for(std::vector<Neuron *>::iterator it = output_neurons.begin(); it != output_neurons.end(); it++)
+	{
+		Neuron *neuron = *it;
+		std::cout << neuron->activeValue << " ";
+	}
+	std::cout << "\n";
 }

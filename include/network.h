@@ -36,6 +36,7 @@ namespace EGDNN
 		void SetOutputValue(std::vector<double> output_values);
 		
 		Network *copy();
+		void Display();
 	};
 }
 

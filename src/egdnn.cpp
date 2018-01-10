@@ -48,6 +48,8 @@ namespace EGDNN
 						network[networkCnt]->ForwardPropagation();
 						network[networkCnt]->BackPropagation();
 						
+						//std::cout << "network : " << networkCnt << " error : " << network[networkCnt]->CalError() << "\n";
+						//network[networkCnt]->Display();
 						error[networkCnt] += network[networkCnt]->CalError();
 						if(trainingLabels[data_i][network[networkCnt]->CalMaxLabel()] > 0.5)
 						{
@@ -82,7 +84,7 @@ namespace EGDNN
 			for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
 			{
 				std::cout << "network " << networkCnt << " : ";
-				std::cout << "error " << error[networkCnt] / (evolutionTime * batchSize) << " , ";
+				std::cout << std::setprecision(10) << "error " << error[networkCnt] / (evolutionTime * batchSize) << " , ";
 				std::cout << "accuracy " << (double)rightCnt[networkCnt] / (evolutionTime * batchSize) << " , ";
 				std::cout << "neuronNum " << network[networkCnt]->CalNeuronNum() << " , ";
 				std::cout << "connectionNum " << network[networkCnt]->CalConnectionNum() << "\n";
