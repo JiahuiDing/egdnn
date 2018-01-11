@@ -11,7 +11,6 @@ namespace EGDNN
 	typedef unsigned char uchar;
 	
 	extern double eps;
-	extern double learning_rate;
 	
 	double fRand(double fMin, double fMax);
 	

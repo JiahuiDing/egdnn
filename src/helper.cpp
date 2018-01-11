@@ -2,7 +2,7 @@
 
 namespace EGDNN
 {
-	double eps = 1e-14;
+	double eps = 1e-12;
 	
 	double fRand(double fMin, double fMax)
 	{
