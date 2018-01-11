@@ -3,7 +3,7 @@ using namespace EGDNN;
 
 Connection::Connection(Neuron *neuron) : neuron(neuron)
 {
-	weight = fRand(0, 1e-3);
+	weight = fRand(0, 1e-8);
 	sumGradient = 0;
 }
 

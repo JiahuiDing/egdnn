@@ -5,11 +5,11 @@
 using namespace EGDNN;
 
 int main(int argc, char *argv[])
-{
-	int maxIter = 100;
+{	
+	int maxIter = 10000;
 	int batchSize = 256;
 	int evolutionTime = 10;
-	int populationSize = 5;
+	int populationSize = 3;
 	double learning_rate = 0.01;
 	
 	int training_N;
