@@ -26,6 +26,7 @@ namespace EGDNN
 		double trueValue;
 		double gradient; // store the gradient of value, not activeValue
 		double sumGradient;
+		int sumGradientCnt;
 		int counter;
 		int copyTag;
 		bool visited; // only used in Network::Reachable

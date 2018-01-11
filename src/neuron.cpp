@@ -4,7 +4,7 @@ using namespace EGDNN;
 
 Neuron::Neuron(int outputTag, Type type) : outputTag(outputTag), type(type)
 {
-	bias = fRand(0, 1e-8);
+	bias = fRand(0, 1e-4);
 	outConnections.clear();
 	inConnections.clear();
 	
@@ -13,6 +13,7 @@ Neuron::Neuron(int outputTag, Type type) : outputTag(outputTag), type(type)
 	trueValue = 0;
 	gradient = 0;
 	sumGradient = 0;
+	sumGradientCnt = 0;
 	counter = 0;
 }
 
@@ -27,6 +28,7 @@ Neuron::Neuron(Neuron *neuron) : outputTag(neuron->outputTag), type(neuron->type
 	trueValue = 0;
 	gradient = 0;
 	sumGradient = 0;
+	sumGradientCnt = 0;
 	counter = 0;
 }
 
@@ -104,6 +106,7 @@ void Neuron::CalGradient()
 			}
 			gradient *= ReluGrad(value);
 			sumGradient += gradient;
+			sumGradientCnt++;
 		
 			for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 			{
@@ -116,14 +119,16 @@ void Neuron::CalGradient()
 		gradient = - MeanSquareErrorGrad(activeValue, trueValue) * ReluGrad(value);
 		//gradient = - MultiCrossEntropyGrad(activeValue, trueValue) * activeValue * (1 - activeValue);
 		sumGradient += gradient;
+		sumGradientCnt++;
 	}
 }
 
 // Update outConnections weight and bias by gradient
 void Neuron::UpdateWeight(double learning_rate)
 {
-	bias += learning_rate * sumGradient;
+	bias += learning_rate * sumGradient / sumGradientCnt;
 	sumGradient = 0;
+	sumGradientCnt = 0;
 	for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 	{
 		(*it)->UpdateWeight(learning_rate);

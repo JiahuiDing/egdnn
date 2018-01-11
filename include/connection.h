@@ -13,6 +13,7 @@ namespace EGDNN
 		Neuron *neuron;
 		double weight;
 		double sumGradient;
+		int sumGradientCnt;
 		
 		Connection(Neuron *neuron);
 		Connection(Neuron *neuron, double weight);
