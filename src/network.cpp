@@ -3,7 +3,7 @@
 #include <iostream>
 using namespace EGDNN;
 
-Network::Network()
+Network::Network(double learning_rate) : learning_rate(learning_rate)
 {
 	input_neurons.clear();
 	hidden_neurons.clear();
@@ -165,22 +165,25 @@ void Network::UpdateWeight()
 	for(std::vector<Neuron *>::iterator it = input_neurons.begin(); it != input_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		neuron->UpdateWeight();
+		neuron->UpdateWeight(learning_rate);
 	}
 	for(std::set<Neuron *>::iterator it = hidden_neurons.begin(); it != hidden_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		neuron->UpdateWeight();
+		neuron->UpdateWeight(learning_rate);
 	}
 	for(std::vector<Neuron *>::iterator it = output_neurons.begin(); it != output_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		neuron->UpdateWeight();
+		neuron->UpdateWeight(learning_rate);
 	}
 }
 
 void Network::Mutate()
 {
+	learning_rate = 0.001;
+	//learning_rate = fRand(0,1) < 0.5 ? learning_rate * fRand(1,10) : learning_rate / fRand(1,10);
+
 	int newHiddenNeuronNum = 1;
 	double rateInputHidden = 0.05;
 	double rateHiddenOutput = 0.05;
@@ -409,7 +412,7 @@ Network * Network::copy()
 	int hidden_N = hidden_neurons.size();
 	int output_N = output_neurons.size();
 	
-	Network *new_network = new Network(); // initialize an empty network
+	Network *new_network = new Network(learning_rate); // initialize an empty network
 	Neuron *new_input_neurons[input_N];
 	Neuron *new_hidden_neurons[hidden_N];
 	Neuron *new_output_neurons[output_N];

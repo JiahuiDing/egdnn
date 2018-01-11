@@ -4,14 +4,14 @@ namespace EGDNN
 {
 	void EvolutionaryGradientDescentNeuralNetwork(std::vector<std::vector<double>> trainingSet, std::vector<std::vector<double>> trainingLabels, int training_N, 
 													std::vector<std::vector<double>> testSet, std::vector<std::vector<double>> testLabels, int test_N, 
-													int input_N, int output_N, int maxIter, int batchSize, int evolutionTime, int populationSize)
+													int input_N, int output_N, int maxIter, int batchSize, int evolutionTime, int populationSize, double learning_rate)
 	{
 		srand(getpid());
 		
 		Network *network[populationSize];
 		for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
 		{
-			network[networkCnt] = new Network();
+			network[networkCnt] = new Network(learning_rate);
 			for(int i = 0; i < input_N; i++)
 			{
 				network[networkCnt]->AddInputNeuron(new Neuron(-1, Neuron::input));
@@ -48,8 +48,6 @@ namespace EGDNN
 						network[networkCnt]->ForwardPropagation();
 						network[networkCnt]->BackPropagation();
 						
-						//std::cout << "network : " << networkCnt << " error : " << network[networkCnt]->CalError() << "\n";
-						//network[networkCnt]->Display();
 						error[networkCnt] += network[networkCnt]->CalError();
 						if(trainingLabels[data_i][network[networkCnt]->CalMaxLabel()] > 0.5)
 						{
@@ -57,20 +55,6 @@ namespace EGDNN
 						}
 					}
 				}
-				
-				/*
-				std::cout << "iter " << iterCnt << " evolution " << evolutionCnt << " performance : \n";
-				for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
-				{
-					std::cout << "network " << networkCnt << " : ";
-					std::cout << "error " << error[networkCnt] / ((evolutionCnt + 1) * batchSize) << " , ";
-					std::cout << "accuracy " << (double)rightCnt[networkCnt] / ((evolutionCnt + 1) * batchSize) << "\n";
-				}
-				gettimeofday(&end, NULL);
-				int timeuse = 1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec -start.tv_usec;
-				std::cout << "time : " << timeuse / 1000 << " ms\n\n";
-				gettimeofday(&start, NULL);
-				*/
 				
 				for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
 				{
@@ -87,7 +71,8 @@ namespace EGDNN
 				std::cout << std::setprecision(10) << "error " << error[networkCnt] / (evolutionTime * batchSize) << " , ";
 				std::cout << "accuracy " << (double)rightCnt[networkCnt] / (evolutionTime * batchSize) << " , ";
 				std::cout << "neuronNum " << network[networkCnt]->CalNeuronNum() << " , ";
-				std::cout << "connectionNum " << network[networkCnt]->CalConnectionNum() << "\n";
+				std::cout << "connectionNum " << network[networkCnt]->CalConnectionNum() << " , ";
+				std::cout << "learning rate " << network[networkCnt]->learning_rate << "\n";
 				
 				if(error[networkCnt] < minError)
 				{

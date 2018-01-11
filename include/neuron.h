@@ -35,7 +35,7 @@ namespace EGDNN
 		~Neuron();
 		void PropagateValue();
 		void CalGradient();
-		void UpdateWeight();
+		void UpdateWeight(double learning_rate);
 		void ResetState();
 		void PropagateCounter();
 		void AddOutNeuron(Neuron *neuron);

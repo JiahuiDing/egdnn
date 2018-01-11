@@ -120,13 +120,13 @@ void Neuron::CalGradient()
 }
 
 // Update outConnections weight and bias by gradient
-void Neuron::UpdateWeight()
+void Neuron::UpdateWeight(double learning_rate)
 {
 	bias += learning_rate * sumGradient;
 	sumGradient = 0;
 	for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 	{
-		(*it)->UpdateWeight();
+		(*it)->UpdateWeight(learning_rate);
 	}
 }
 
