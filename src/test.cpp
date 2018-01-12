@@ -87,10 +87,6 @@ namespace EGDNN
 					int timeuse = 1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec -start.tv_usec;
 					std::cout << "time : " << timeuse / 1000 << " ms\n\n";
 					gettimeofday(&start, NULL);
-					
-					Network *new_network = network->copy();
-					delete network;
-					network = new_network;
 				}
 			}
 		}

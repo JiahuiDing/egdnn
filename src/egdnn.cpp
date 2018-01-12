@@ -26,14 +26,16 @@ namespace EGDNN
 		// training
 		struct timeval start, end;
 		gettimeofday(&start, NULL);
-		for(int iterCnt = 0; iterCnt < maxIter; iterCnt++)
+		for(int iterCnt = 0; iterCnt < maxIter && kbhit() == false; iterCnt++)
 		{
 			double error[populationSize];
 			int rightCnt[populationSize];
+			int zeroCnt[populationSize];
 			for(int i = 0; i < populationSize; i++)
 			{
 				error[i] = 0;
 				rightCnt[i] = 0;
+				zeroCnt[i] = 0;
 			}
 			
 			for(int evolutionCnt = 0; evolutionCnt < evolutionTime; evolutionCnt++)
@@ -53,6 +55,7 @@ namespace EGDNN
 						{
 							rightCnt[networkCnt]++;
 						}
+						zeroCnt[networkCnt] += network[networkCnt]->CalZeroCnt();
 					}
 				}
 				
@@ -72,7 +75,8 @@ namespace EGDNN
 				std::cout << "accuracy " << (double)rightCnt[networkCnt] / (evolutionTime * batchSize) << " , ";
 				std::cout << "neuronNum " << network[networkCnt]->CalNeuronNum() << " , ";
 				std::cout << "connectionNum " << network[networkCnt]->CalConnectionNum() << " , ";
-				std::cout << "learning rate " << network[networkCnt]->learning_rate << "\n";
+				std::cout << "learning rate " << network[networkCnt]->learning_rate << " , ";
+				std::cout << "zeroRate " << (double)zeroCnt[networkCnt] / (evolutionTime * batchSize * network[networkCnt]->CalNeuronNum()) << "\n";
 				
 				if(error[networkCnt] < minError)
 				{
@@ -81,7 +85,7 @@ namespace EGDNN
 				}
 			}
 			gettimeofday(&end, NULL);
-			int timeuse = 1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec -start.tv_usec;
+			int timeuse = 1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec - start.tv_usec;
 			std::cout << "time : " << timeuse / 1000 << " ms\n\n";
 			gettimeofday(&start, NULL);
 			
@@ -96,6 +100,7 @@ namespace EGDNN
 			
 			// reproduce
 			network[0] = network[bestNetwork];
+			if(network[0]->CalNeuronNum() > 100) populationSize = 1;
 			for(int networkCnt = 1; networkCnt < populationSize; networkCnt++)
 			{
 				network[networkCnt] = network[0]->copy();

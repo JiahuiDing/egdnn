@@ -1,6 +1,11 @@
 #ifndef _HELPER_H_
 #define _HELPER_H_
 
+#include <stdio.h>
+#include <termios.h>  
+#include <unistd.h>  
+#include <fcntl.h>  
+
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -13,6 +18,7 @@ namespace EGDNN
 	extern double eps;
 	
 	double fRand(double fMin, double fMax);
+	bool kbhit();
 	
 	/* 
 		usage :

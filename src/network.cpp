@@ -181,7 +181,7 @@ void Network::UpdateWeight()
 
 void Network::Mutate()
 {
-	//learning_rate = fRand(-1,1) > 0 ? learning_rate * fRand(1,1.1) : learning_rate / fRand(1,1.1);
+	//learning_rate = fRand(0.5,2) * learning_rate;
 
 	int newHiddenNeuronNum = 1;
 	double rateInputHidden = 0.05;
