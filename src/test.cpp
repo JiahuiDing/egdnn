@@ -4,12 +4,12 @@ namespace EGDNN
 {
 	void SimpleNeuralNetwork(std::vector<std::vector<double>> trainingSet, std::vector<std::vector<double>> trainingLabels, int training_N, 
 							std::vector<std::vector<double>> testSet, std::vector<std::vector<double>> testLabels, int test_N, 
-							int input_N, int output_N, int maxIter, int batchSize, double learning_rate)
+							int input_N, int output_N, int maxIter, int batchSize, double learning_rate, double velocity_decay)
 	{	
 		srand(getpid());
 		int hidden_N = 30;
 		
-		Network *network = new Network(learning_rate);
+		Network *network = new Network(learning_rate, velocity_decay);
 		Neuron *input_neurons[input_N];
 		Neuron *hidden_neurons[hidden_N];
 		Neuron *output_neurons[output_N];

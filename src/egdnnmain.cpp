@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
 	int evolutionTime = 10;
 	int populationSize = 2;
 	double learning_rate = 1e-3;
+	double velocity_decay = 0.9;
 	
 	int training_N;
 	int test_N;
@@ -29,12 +30,12 @@ int main(int argc, char *argv[])
 	/*
 	SimpleNeuralNetwork(trainingSet, trainingLabels, training_N, 
 						testSet, testLabels, test_N, 
-						input_N, output_N, maxIter, batchSize, learning_rate);
+						input_N, output_N, maxIter, batchSize, learning_rate, velocity_decay);
 	*/
 	
 	EvolutionaryGradientDescentNeuralNetwork(trainingSet, trainingLabels, training_N, 
 											testSet, testLabels, test_N, 
-											input_N, output_N, maxIter, batchSize, evolutionTime, populationSize, learning_rate);
+											input_N, output_N, maxIter, batchSize, evolutionTime, populationSize, learning_rate, velocity_decay);
 	
 	return 0;
 }

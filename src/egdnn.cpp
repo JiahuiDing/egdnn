@@ -4,14 +4,14 @@ namespace EGDNN
 {
 	void EvolutionaryGradientDescentNeuralNetwork(std::vector<std::vector<double>> trainingSet, std::vector<std::vector<double>> trainingLabels, int training_N, 
 													std::vector<std::vector<double>> testSet, std::vector<std::vector<double>> testLabels, int test_N, 
-													int input_N, int output_N, int maxIter, int batchSize, int evolutionTime, int populationSize, double learning_rate)
+													int input_N, int output_N, int maxIter, int batchSize, int evolutionTime, int populationSize, double learning_rate, double velocity_decay)
 	{
 		srand(getpid());
 		
 		Network *network[populationSize];
 		for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
 		{
-			network[networkCnt] = new Network(learning_rate);
+			network[networkCnt] = new Network(learning_rate, velocity_decay);
 			for(int i = 0; i < input_N; i++)
 			{
 				network[networkCnt]->AddInputNeuron(new Neuron(-1, Neuron::input));
@@ -75,7 +75,8 @@ namespace EGDNN
 				std::cout << "accuracy " << (double)rightCnt[networkCnt] / (evolutionTime * batchSize) << " , ";
 				std::cout << "neuronNum " << network[networkCnt]->CalNeuronNum() << " , ";
 				std::cout << "connectionNum " << network[networkCnt]->CalConnectionNum() << " , ";
-				std::cout << "learning rate " << network[networkCnt]->learning_rate << " , ";
+				std::cout << "learning_rate " << network[networkCnt]->learning_rate << " , ";
+				std::cout << "velocity_decay " << network[networkCnt]->velocity_decay << " , ";
 				std::cout << "zeroRate " << (double)zeroCnt[networkCnt] / (evolutionTime * batchSize * network[networkCnt]->CalNeuronNum()) << "\n";
 				
 				if(error[networkCnt] < minError)

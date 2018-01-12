@@ -24,8 +24,11 @@ namespace EGDNN
 		double value; // this is the value before apply active function
 		double activeValue; // this is the value after apply active function
 		double trueValue;
-		double gradient; // store the gradient of value, not activeValue
-		double sumGradient;
+		
+		double gradient; // store the gradient of value, not activeValue, for a single input. Used for bakcpropagation.
+		double velocity;
+		double sumGradient; // store the gradient of a batch
+		
 		int counter;
 		int copyTag;
 		bool visited; // only used in Network::Reachable
@@ -35,7 +38,7 @@ namespace EGDNN
 		~Neuron();
 		void PropagateValue();
 		void CalGradient();
-		void UpdateWeight(double learning_rate);
+		void UpdateWeight(double learning_rate, double velocity_decay);
 		void ResetState();
 		void PropagateCounter();
 		void AddOutNeuron(Neuron *neuron);

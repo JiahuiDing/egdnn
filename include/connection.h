@@ -12,12 +12,13 @@ namespace EGDNN
 		public:
 		Neuron *neuron;
 		double weight;
-		double sumGradient;
+		double velocity;
+		double sumGradient; // store the sum gradient of a batch
 		
 		Connection(Neuron *neuron);
 		Connection(Neuron *neuron, double weight);
 		void AddGradient(double gradient);
-		void UpdateWeight(double learning_rate);
+		void UpdateWeight(double learning_rate, double velocity_decay);
 	};
 }
 

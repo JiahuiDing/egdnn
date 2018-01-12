@@ -12,6 +12,7 @@ Neuron::Neuron(int outputTag, Type type) : outputTag(outputTag), type(type)
 	activeValue = 0;
 	trueValue = 0;
 	gradient = 0;
+	velocity = 0;
 	sumGradient = 0;
 	counter = 0;
 }
@@ -26,6 +27,7 @@ Neuron::Neuron(Neuron *neuron) : outputTag(neuron->outputTag), type(neuron->type
 	activeValue = 0;
 	trueValue = 0;
 	gradient = 0;
+	velocity = 0;
 	sumGradient = 0;
 	counter = 0;
 }
@@ -120,13 +122,15 @@ void Neuron::CalGradient()
 }
 
 // Update outConnections weight and bias by gradient
-void Neuron::UpdateWeight(double learning_rate)
+void Neuron::UpdateWeight(double learning_rate, double velocity_decay)
 {
-	bias += learning_rate * sumGradient;
+	velocity = velocity_decay * velocity + sumGradient;
 	sumGradient = 0;
+	bias += learning_rate * velocity;
+	
 	for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 	{
-		(*it)->UpdateWeight(learning_rate);
+		(*it)->UpdateWeight(learning_rate, velocity_decay);
 	}
 }
 
