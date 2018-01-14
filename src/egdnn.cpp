@@ -4,14 +4,15 @@ namespace EGDNN
 {
 	void EvolutionaryGradientDescentNeuralNetwork(std::vector<std::vector<double>> trainingSet, std::vector<std::vector<double>> trainingLabels, int training_N, 
 													std::vector<std::vector<double>> testSet, std::vector<std::vector<double>> testLabels, int test_N, 
-													int input_N, int output_N, int maxIter, int batchSize, int evolutionTime, int populationSize, double learning_rate, double velocity_decay)
+													int input_N, int output_N, int maxIter, int batchSize, int evolutionTime, int populationSize, 
+													double learning_rate, double velocity_decay, double regularization_l2, double gradientClip)
 	{
 		srand(getpid());
 		
 		Network *network[populationSize];
 		for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
 		{
-			network[networkCnt] = new Network(learning_rate, velocity_decay);
+			network[networkCnt] = new Network(learning_rate, velocity_decay, regularization_l2, gradientClip);
 			for(int i = 0; i < input_N; i++)
 			{
 				network[networkCnt]->AddInputNeuron(new Neuron(-1, Neuron::input));
@@ -101,7 +102,7 @@ namespace EGDNN
 			
 			// reproduce
 			network[0] = network[bestNetwork];
-			if(network[0]->CalNeuronNum() > 100) populationSize = 1;
+			if(network[0]->CalNeuronNum() > 150) populationSize = 1;
 			for(int networkCnt = 1; networkCnt < populationSize; networkCnt++)
 			{
 				network[networkCnt] = network[0]->copy();

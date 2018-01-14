@@ -3,7 +3,8 @@
 #include <iostream>
 using namespace EGDNN;
 
-Network::Network(double learning_rate, double velocity_decay) : learning_rate(learning_rate), velocity_decay(velocity_decay)
+Network::Network(double learning_rate, double velocity_decay, double regularization_l2, double gradientClip) 
+				: learning_rate(learning_rate), velocity_decay(velocity_decay), regularization_l2(regularization_l2), gradientClip(gradientClip)
 {
 	input_neurons.clear();
 	hidden_neurons.clear();
@@ -102,7 +103,7 @@ void Network::ForwardPropagation()
 		}
 	}
 	
-	//Softmax();
+	Softmax();
 }
 
 void Network::BackPropagation()
@@ -162,26 +163,78 @@ void Network::BackPropagation()
 
 void Network::UpdateWeight()
 {
+	double sumGradient = 0;
 	for(std::vector<Neuron *>::iterator it = input_neurons.begin(); it != input_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		neuron->UpdateWeight(learning_rate, velocity_decay);
+		for(std::set<Connection *>::iterator it = neuron->outConnections.begin(); it != neuron->outConnections.end(); it++)
+		{
+			sumGradient += (*it)->sumGradient * (*it)->sumGradient;
+		}
 	}
 	for(std::set<Neuron *>::iterator it = hidden_neurons.begin(); it != hidden_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		neuron->UpdateWeight(learning_rate, velocity_decay);
+		sumGradient += neuron->sumGradient * neuron->sumGradient;
+		for(std::set<Connection *>::iterator it = neuron->outConnections.begin(); it != neuron->outConnections.end(); it++)
+		{
+			sumGradient += (*it)->sumGradient * (*it)->sumGradient;
+		}
 	}
 	for(std::vector<Neuron *>::iterator it = output_neurons.begin(); it != output_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		neuron->UpdateWeight(learning_rate, velocity_decay);
+		sumGradient += neuron->sumGradient * neuron->sumGradient;
+	}
+	sumGradient = sqrt(sumGradient);
+	
+	double tmpGradientClip = gradientClip * sqrt(CalConnectionNum() + CalNeuronNum());
+	if(sumGradient > tmpGradientClip)
+	{
+		for(std::vector<Neuron *>::iterator it = input_neurons.begin(); it != input_neurons.end(); it++)
+		{
+			Neuron *neuron = *it;
+			for(std::set<Connection *>::iterator it = neuron->outConnections.begin(); it != neuron->outConnections.end(); it++)
+			{
+				(*it)->sumGradient *= tmpGradientClip / sumGradient; 
+			}
+		}
+		for(std::set<Neuron *>::iterator it = hidden_neurons.begin(); it != hidden_neurons.end(); it++)
+		{
+			Neuron *neuron = *it;
+			neuron->sumGradient *= tmpGradientClip / sumGradient;
+			for(std::set<Connection *>::iterator it = neuron->outConnections.begin(); it != neuron->outConnections.end(); it++)
+			{
+				(*it)->sumGradient *= tmpGradientClip / sumGradient; 
+			}
+		}
+		for(std::vector<Neuron *>::iterator it = output_neurons.begin(); it != output_neurons.end(); it++)
+		{
+			Neuron *neuron = *it;
+			neuron->sumGradient *= tmpGradientClip / sumGradient;
+		}
+	}
+	
+	for(std::vector<Neuron *>::iterator it = input_neurons.begin(); it != input_neurons.end(); it++)
+	{
+		Neuron *neuron = *it;
+		neuron->UpdateWeight(learning_rate, velocity_decay, regularization_l2);
+	}
+	for(std::set<Neuron *>::iterator it = hidden_neurons.begin(); it != hidden_neurons.end(); it++)
+	{
+		Neuron *neuron = *it;
+		neuron->UpdateWeight(learning_rate, velocity_decay, regularization_l2);
+	}
+	for(std::vector<Neuron *>::iterator it = output_neurons.begin(); it != output_neurons.end(); it++)
+	{
+		Neuron *neuron = *it;
+		neuron->UpdateWeight(learning_rate, velocity_decay, regularization_l2);
 	}
 }
 
 void Network::Mutate()
 {
-	int newHiddenNeuronNum = 1;
+	int newHiddenNeuronNum = 3;
 	double rateInputHidden = 0.05;
 	double rateHiddenOutput = 0.05;
 	double rateHiddenHidden = 0.05;
@@ -248,7 +301,7 @@ void Network::Mutate()
 
 void Network::Softmax()
 {
-	double maxValue = 0;
+	double maxValue = -std::numeric_limits<double>::max();
 	for(std::vector<Neuron *>::iterator it = output_neurons.begin(); it != output_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
@@ -279,7 +332,8 @@ double Network::CalError()
 	for(std::vector<Neuron *>::iterator it = output_neurons.begin(); it != output_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		error += neuron->CalError();
+		//error += neuron->CalError(); // For mean square error
+		if(neuron->trueValue > 0.5) return -log(neuron->activeValue); // For cross-entropy error
 	}
 	return error;
 }
@@ -409,7 +463,7 @@ Network * Network::copy()
 	int hidden_N = hidden_neurons.size();
 	int output_N = output_neurons.size();
 	
-	Network *new_network = new Network(learning_rate, velocity_decay); // initialize an empty network
+	Network *new_network = new Network(learning_rate, velocity_decay, regularization_l2, gradientClip); // initialize an empty network
 	Neuron *new_input_neurons[input_N];
 	Neuron *new_hidden_neurons[hidden_N];
 	Neuron *new_output_neurons[output_N];

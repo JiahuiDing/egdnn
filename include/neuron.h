@@ -38,7 +38,7 @@ namespace EGDNN
 		~Neuron();
 		void PropagateValue();
 		void CalGradient();
-		void UpdateWeight(double learning_rate, double velocity_decay);
+		void UpdateWeight(double learning_rate, double velocity_decay, double regularization_l2);
 		void ResetState();
 		void PropagateCounter();
 		void AddOutNeuron(Neuron *neuron);
@@ -56,10 +56,7 @@ namespace EGDNN
 		
 		double MeanSquareError(double activeY, double trueY);
 		double MeanSquareErrorGrad(double activeY,double trueY);
-		double BinaryCrossEntropy(double activeY, double trueY);
-		double BinaryCrossEntropyGrad(double activeY, double trueY);
-		double MultiCrossEntropy(double activeY, double trueY);
-		double MultiCrossEntropyGrad(double activeY, double trueY);
+		double SoftmaxCrossEntropyGrad(double activeY,double trueY);
 	};
 }
 

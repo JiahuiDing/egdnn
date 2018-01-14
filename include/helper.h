@@ -10,6 +10,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <assert.h>
+#include <math.h>
 
 namespace EGDNN
 {

@@ -77,7 +77,7 @@ void Neuron::PropagateValue()
 	else // output neuron
 	{
 		value += bias;
-		activeValue = Relu(value);
+		//activeValue = Relu(value);
 	}
 }
 
@@ -115,26 +115,26 @@ void Neuron::CalGradient()
 	}
 	else // output neuron
 	{
-		gradient = - MeanSquareErrorGrad(activeValue, trueValue) * ReluGrad(value);
-		//gradient = - MultiCrossEntropyGrad(activeValue, trueValue) * activeValue * (1 - activeValue);
+		//gradient = - MeanSquareErrorGrad(activeValue, trueValue) * ReluGrad(value);
+		gradient = - SoftmaxCrossEntropyGrad(activeValue, trueValue);
 		sumGradient += gradient;
 	}
 }
 
 // Update outConnections weight and bias by gradient
-void Neuron::UpdateWeight(double learning_rate, double velocity_decay)
-{
+void Neuron::UpdateWeight(double learning_rate, double velocity_decay, double regularization_l2)
+{	
 	velocity = velocity_decay * velocity + sumGradient;
 	sumGradient = 0;
-	bias += learning_rate * velocity;
+	bias = bias + learning_rate * velocity - learning_rate * regularization_l2 * bias;
 	
 	for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 	{
-		(*it)->UpdateWeight(learning_rate, velocity_decay);
+		(*it)->UpdateWeight(learning_rate, velocity_decay, regularization_l2);
 	}
 }
 
-// Reset state except sumGradient
+// Reset states except sumGradient and velocity
 void Neuron::ResetState()
 {
 	if(type != input)
@@ -243,49 +243,8 @@ double Neuron::MeanSquareErrorGrad(double activeY, double trueY)
 	return activeY - trueY;
 }
 
-double Neuron::BinaryCrossEntropy(double activeY, double trueY)
+// The gradient of Softmax + Cross-entropy error
+double Neuron::SoftmaxCrossEntropyGrad(double activeY,double trueY)
 {
-	if(abs(trueY) < eps)
-	{
-		return -log(1 - activeY);
-	}
-	else
-	{
-		return -log(activeY);
-	}
-}
-
-double Neuron::BinaryCrossEntropyGrad(double activeY, double trueY)
-{
-	if(abs(trueY) < eps)
-	{
-		return 1 / (1 - activeY);
-	}
-	else
-	{
-		return - 1 / activeY;
-	}
-}
-
-double Neuron::MultiCrossEntropy(double activeY, double trueY)
-{
-	if(abs(trueY) < eps)
-	{
-		return 0;
-	}
-	else
-	{
-		return - log(activeY);
-	}
-}
-double Neuron::MultiCrossEntropyGrad(double activeY, double trueY)
-{
-	if(abs(trueY) < eps)
-	{
-		return 0;
-	}
-	else
-	{
-		return - 1 / activeY;
-	}
+	return activeY - trueY;
 }

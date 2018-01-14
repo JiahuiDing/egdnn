@@ -18,7 +18,7 @@ namespace EGDNN
 		Connection(Neuron *neuron);
 		Connection(Neuron *neuron, double weight);
 		void AddGradient(double gradient);
-		void UpdateWeight(double learning_rate, double velocity_decay);
+		void UpdateWeight(double learning_rate, double velocity_decay, double regularization_l2);
 	};
 }
 
