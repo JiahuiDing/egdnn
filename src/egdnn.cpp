@@ -102,7 +102,7 @@ namespace EGDNN
 			
 			// reproduce
 			network[0] = network[bestNetwork];
-			if(network[0]->CalNeuronNum() > 150) populationSize = 1;
+			if(network[0]->CalNeuronNum() > 500) populationSize = 1;
 			for(int networkCnt = 1; networkCnt < populationSize; networkCnt++)
 			{
 				network[networkCnt] = network[0]->copy();
