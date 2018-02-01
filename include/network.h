@@ -30,7 +30,9 @@ namespace EGDNN
 		int CalZeroCnt(); // calculate the number of hidden neurons whose activeValue = 0
 		int CalNeuronNum(); // calculate the number of hidden neurons in the network
 		int CalConnectionNum(); // calculate the number of connections in the network
+		double CalAverageWeight(); // calculate the average of all connection weights in the network
 		int CalMaxLabel();
+		double CalCertainty();
 		
 		bool Reachable(Neuron *s, Neuron *t);
 		

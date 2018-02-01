@@ -211,9 +211,9 @@ void Network::UpdateWeight()
 void Network::Mutate()
 {
 	int newHiddenNeuronNum = 3;
-	double rateInputHidden = 0.05;
-	double rateHiddenOutput = 0.05;
-	double rateHiddenHidden = 0.05;
+	double rateInputHidden = 1.1;
+	double rateHiddenOutput = 1.1;
+	double rateHiddenHidden = 1.1;
 	
 	// add hidden neurons
 	for(int i = 0; i < newHiddenNeuronNum; i++)
@@ -356,6 +356,28 @@ int Network::CalConnectionNum()
 	return sum;
 }
 
+double Network::CalAverageWeight()
+{
+	double sum = 0;
+	for(std::vector<Neuron *>::iterator it1 = input_neurons.begin(); it1 != input_neurons.end(); it1++)
+	{
+		Neuron *neuron = *it1;
+		for(std::set<Connection *>::iterator it2 = neuron->outConnections.begin(); it2 != neuron->outConnections.end(); it2++)
+		{
+			sum += (*it2)->weight;
+		}
+	}
+	for(std::set<Neuron *>::iterator it1 = hidden_neurons.begin(); it1 != hidden_neurons.end(); it1++)
+	{
+		Neuron *neuron = *it1;
+		for(std::set<Connection *>::iterator it2 = neuron->outConnections.begin(); it2 != neuron->outConnections.end(); it2++)
+		{
+			sum += (*it2)->weight;
+		}
+	}
+	return sum / CalConnectionNum();
+}
+
 int Network::CalMaxLabel()
 {
 	double maxValue = -1;
@@ -370,6 +392,20 @@ int Network::CalMaxLabel()
 		}
 	}
 	return maxLabel;
+}
+
+double Network::CalCertainty()
+{
+	double maxValue = -1;
+	for(std::vector<Neuron *>::iterator it = output_neurons.begin(); it != output_neurons.end(); it++)
+	{
+		Neuron *neuron = *it;
+		if(neuron->activeValue > maxValue)
+		{
+			maxValue = neuron->activeValue;
+		}
+	}
+	return maxValue;
 }
 
 bool Network::Reachable(Neuron *s, Neuron *t)

@@ -32,11 +32,13 @@ namespace EGDNN
 			double error[populationSize];
 			int rightCnt[populationSize];
 			int zeroCnt[populationSize];
+			double certainty[populationSize];
 			for(int i = 0; i < populationSize; i++)
 			{
 				error[i] = 0;
 				rightCnt[i] = 0;
 				zeroCnt[i] = 0;
+				certainty[i] = 0;
 			}
 			
 			for(int evolutionCnt = 0; evolutionCnt < evolutionTime; evolutionCnt++)
@@ -57,6 +59,7 @@ namespace EGDNN
 							rightCnt[networkCnt]++;
 						}
 						zeroCnt[networkCnt] += network[networkCnt]->CalZeroCnt();
+						certainty[networkCnt] += network[networkCnt]->CalCertainty();
 					}
 				}
 				
@@ -78,7 +81,9 @@ namespace EGDNN
 				std::cout << "connectionNum " << network[networkCnt]->CalConnectionNum() << " , ";
 				std::cout << "learning_rate " << network[networkCnt]->learning_rate << " , ";
 				std::cout << "velocity_decay " << network[networkCnt]->velocity_decay << " , ";
-				std::cout << "zeroRate " << (double)zeroCnt[networkCnt] / (evolutionTime * batchSize * network[networkCnt]->CalNeuronNum()) << "\n";
+				std::cout << "zeroRate " << (double)zeroCnt[networkCnt] / (evolutionTime * batchSize * network[networkCnt]->CalNeuronNum()) << " , ";
+				std::cout << "certainty " << certainty[networkCnt] / (evolutionTime * batchSize) << " , ";
+				std::cout << "averageWeight " << network[networkCnt]->CalAverageWeight() << "\n";
 				
 				if(error[networkCnt] < minError)
 				{
