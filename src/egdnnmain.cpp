@@ -29,17 +29,17 @@ int main(int argc, char *argv[])
 				testSet, testLabels, test_N, 
 				input_N, output_N);
 	
-	/*
+	
 	SimpleNeuralNetwork(trainingSet, trainingLabels, training_N, 
 						testSet, testLabels, test_N, 
 						input_N, output_N, maxIter, batchSize, 
 						learning_rate, velocity_decay, regularization_l2, gradientClip);
-	*/
 	
+	/*
 	EvolutionaryGradientDescentNeuralNetwork(trainingSet, trainingLabels, training_N, 
 											testSet, testLabels, test_N, 
 											input_N, output_N, maxIter, batchSize, evolutionTime, populationSize, 
 											learning_rate, velocity_decay, regularization_l2, gradientClip);
-	
+	*/
 	return 0;
 }

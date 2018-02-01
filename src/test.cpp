@@ -35,8 +35,9 @@ namespace EGDNN
 		{
 			for(int j = 0; j < hidden_N; j++)
 			{
-				input_neurons[i]->AddOutNeuron(hidden_neurons[j]);
-				hidden_neurons[j]->AddInNeuron(input_neurons[i]);
+				Connection *connection = new Connection(input_neurons[i], hidden_neurons[j]);
+				input_neurons[i]->AddOutConnection(connection);
+				hidden_neurons[j]->AddInConnection(connection);
 			}
 		}
 	
@@ -44,8 +45,9 @@ namespace EGDNN
 		{
 			for(int j = 0; j < output_N; j++)
 			{
-				hidden_neurons[i]->AddOutNeuron(output_neurons[j]);
-				output_neurons[j]->AddInNeuron(hidden_neurons[i]);
+				Connection *connection = new Connection(hidden_neurons[i], output_neurons[j]);
+				hidden_neurons[i]->AddOutConnection(connection);
+				output_neurons[j]->AddInConnection(connection);
 			}
 		}
 		

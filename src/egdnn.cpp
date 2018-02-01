@@ -87,8 +87,8 @@ namespace EGDNN
 				}
 			}
 			gettimeofday(&end, NULL);
-			int timeuse = 1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec - start.tv_usec;
-			std::cout << "time : " << timeuse / 1000 << " ms\n\n";
+			double timeuse = 1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec - start.tv_usec;
+			std::cout << "time : " << timeuse / 1000000 << " s\n\n";
 			gettimeofday(&start, NULL);
 			
 			// kill all networks except the best

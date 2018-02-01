@@ -19,7 +19,7 @@ namespace EGDNN
 		Type type;
 		double bias;
 		std::set<Connection *> outConnections;
-		std::set<Connection *> inConnections; // inConnection does not contain weight
+		std::set<Connection *> inConnections;
 		
 		double value; // this is the value before apply active function
 		double activeValue; // this is the value after apply active function
@@ -29,7 +29,8 @@ namespace EGDNN
 		double velocity;
 		double sumGradient; // store the gradient of a batch
 		
-		int counter;
+		int forwardCounter;
+		int backwardCounter;
 		int copyTag;
 		bool visited; // only used in Network::Reachable
 		
@@ -40,10 +41,8 @@ namespace EGDNN
 		void CalGradient();
 		void UpdateWeight(double learning_rate, double velocity_decay, double regularization_l2);
 		void ResetState();
-		void PropagateCounter();
-		void AddOutNeuron(Neuron *neuron);
-		void AddOutNeuron(Neuron *neuron, double weight);
-		void AddInNeuron(Neuron *neuron);
+		void AddOutConnection(Connection *connection);
+		void AddInConnection(Connection *connection);
 		double CalError();
 		
 		bool ContainOutNeuron(Neuron *neuron);

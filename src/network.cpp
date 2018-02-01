@@ -34,7 +34,7 @@ Network::~Network()
 
 void Network::ForwardPropagation()
 {
-	// clear all the state
+	// reset all the state, set forwardCounter and backwardCounter
 	for(std::vector<Neuron *>::iterator it = input_neurons.begin(); it != input_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
@@ -49,18 +49,6 @@ void Network::ForwardPropagation()
 	{
 		Neuron *neuron = *it;
 		neuron->ResetState();
-	}
-	
-	// calculate counter, used for topological sorting
-	for(std::vector<Neuron *>::iterator it = input_neurons.begin(); it != input_neurons.end(); it++)
-	{
-		Neuron *neuron = *it;
-		neuron->PropagateCounter();
-	}
-	for(std::set<Neuron *>::iterator it = hidden_neurons.begin(); it != hidden_neurons.end(); it++)
-	{
-		Neuron *neuron = *it;
-		neuron->PropagateCounter();
 	}
 	
 	// perform topological sorting to forward propagate all the value
@@ -73,7 +61,7 @@ void Network::ForwardPropagation()
 	for(std::set<Neuron *>::iterator it = hidden_neurons.begin(); it != hidden_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		if(neuron->counter == 0)
+		if(neuron->forwardCounter == 0)
 		{
 			readyNeurons.push(neuron);
 		}
@@ -81,7 +69,7 @@ void Network::ForwardPropagation()
 	for(std::vector<Neuron *>::iterator it = output_neurons.begin(); it != output_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		if(neuron->counter == 0)
+		if(neuron->forwardCounter == 0)
 		{
 			readyNeurons.push(neuron);
 		}
@@ -94,9 +82,9 @@ void Network::ForwardPropagation()
 		neuron->PropagateValue();
 		for(std::set<Connection *>::iterator it = neuron->outConnections.begin(); it != neuron->outConnections.end(); it++)
 		{
-			Neuron *outNeuron = (*it)->neuron;
-			outNeuron->counter--;
-			if(outNeuron->counter == 0)
+			Neuron *outNeuron = (*it)->outNeuron;
+			outNeuron->forwardCounter--;
+			if(outNeuron->forwardCounter == 0)
 			{
 				readyNeurons.push(outNeuron);
 			}
@@ -107,19 +95,7 @@ void Network::ForwardPropagation()
 }
 
 void Network::BackPropagation()
-{
-	// calculate counter, used for topological sorting
-	for(std::vector<Neuron *>::iterator it = input_neurons.begin(); it != input_neurons.end(); it++)
-	{
-		Neuron *neuron = *it;
-		neuron->counter = neuron->outConnections.size();
-	}
-	for(std::set<Neuron *>::iterator it = hidden_neurons.begin(); it != hidden_neurons.end(); it++)
-	{
-		Neuron *neuron = *it;
-		neuron->counter = neuron->outConnections.size();
-	}
-	
+{	
 	// perform topological sorting to back propagate all the value
 	std::queue<Neuron *> readyNeurons;
 	for(std::vector<Neuron *>::iterator it = output_neurons.begin(); it != output_neurons.end(); it++)
@@ -130,7 +106,7 @@ void Network::BackPropagation()
 	for(std::set<Neuron *>::iterator it = hidden_neurons.begin(); it != hidden_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		if(neuron->counter == 0)
+		if(neuron->backwardCounter == 0)
 		{
 			readyNeurons.push(neuron);
 		}
@@ -138,7 +114,7 @@ void Network::BackPropagation()
 	for(std::vector<Neuron *>::iterator it = input_neurons.begin(); it != input_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		if(neuron->counter == 0)
+		if(neuron->backwardCounter == 0)
 		{
 			readyNeurons.push(neuron);
 		}
@@ -151,9 +127,9 @@ void Network::BackPropagation()
 		neuron->CalGradient();
 		for(std::set<Connection *>::iterator it = neuron->inConnections.begin(); it != neuron->inConnections.end(); it++)
 		{
-			Neuron *inNeuron = (*it)->neuron;
-			inNeuron->counter--;
-			if(inNeuron->counter == 0)
+			Neuron *inNeuron = (*it)->inNeuron;
+			inNeuron->backwardCounter--;
+			if(inNeuron->backwardCounter == 0)
 			{
 				readyNeurons.push(inNeuron);
 			}
@@ -254,8 +230,9 @@ void Network::Mutate()
 			Neuron *neuron2 = *it2;
 			if(fRand(0,1) < rateInputHidden && neuron1->ContainOutNeuron(neuron2) == false)
 			{
-				neuron1->AddOutNeuron(neuron2);
-				neuron2->AddInNeuron(neuron1);
+				Connection *connection = new Connection(neuron1, neuron2);
+				neuron1->AddOutConnection(connection);
+				neuron2->AddInConnection(connection);
 			}
 		}
 	}
@@ -269,8 +246,9 @@ void Network::Mutate()
 			Neuron *neuron2 = *it2;
 			if(fRand(0,1) < rateHiddenOutput && neuron1->ContainOutNeuron(neuron2) == false)
 			{
-				neuron1->AddOutNeuron(neuron2);
-				neuron2->AddInNeuron(neuron1);
+				Connection *connection = new Connection(neuron1, neuron2);
+				neuron1->AddOutConnection(connection);
+				neuron2->AddInConnection(connection);
 			}
 		}
 	}
@@ -286,13 +264,15 @@ void Network::Mutate()
 			{
 				if(neuron1->ContainOutNeuron(neuron2) == false && Reachable(neuron2, neuron1) == false)
 				{
-					neuron1->AddOutNeuron(neuron2);
-					neuron2->AddInNeuron(neuron1);
+					Connection *connection = new Connection(neuron1, neuron2);
+					neuron1->AddOutConnection(connection);
+					neuron2->AddInConnection(connection);
 				}
 				else if(neuron2->ContainOutNeuron(neuron1) == false && Reachable(neuron1, neuron2) == false)
 				{
-					neuron2->AddOutNeuron(neuron1);
-					neuron1->AddInNeuron(neuron2);
+					Connection *connection = new Connection(neuron2, neuron1);
+					neuron2->AddOutConnection(connection);
+					neuron1->AddInConnection(connection);
 				}
 			}
 		}
@@ -366,12 +346,12 @@ int Network::CalConnectionNum()
 	for(std::vector<Neuron *>::iterator it = input_neurons.begin(); it != input_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		sum += (neuron->outConnections).size();
+		sum += neuron->outConnections.size();
 	}
 	for(std::set<Neuron *>::iterator it = hidden_neurons.begin(); it != hidden_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		sum += (neuron->outConnections).size();
+		sum += neuron->outConnections.size();
 	}
 	return sum;
 }
@@ -413,7 +393,7 @@ bool Network::Reachable(Neuron *s, Neuron *t)
 		}
 		for(std::set<Connection *>::iterator it = neuron->outConnections.begin(); it != neuron->outConnections.end(); it++)
 		{
-			Neuron *outNeuron = (*it)->neuron;
+			Neuron *outNeuron = (*it)->outNeuron;
 			if(outNeuron->visited == false)
 			{
 				outNeuron->visited = true;
@@ -506,11 +486,13 @@ Network * Network::copy()
 		int copyTag1 = neuron1->copyTag;
 		for(std::set<Connection *>::iterator it2 = neuron1->outConnections.begin(); it2 != neuron1->outConnections.end(); it2++)
 		{
-			Neuron *neuron2 = (*it2)->neuron;
+			Neuron *neuron2 = (*it2)->outNeuron;
 			int copyTag2 = neuron2->copyTag;
 			double weight = (*it2)->weight;
-			new_input_neurons[copyTag1]->AddOutNeuron(new_hidden_neurons[copyTag2], weight);
-			new_hidden_neurons[copyTag2]->AddInNeuron(new_input_neurons[copyTag1]);
+			
+			Connection *connection = new Connection(new_input_neurons[copyTag1], new_hidden_neurons[copyTag2], weight);
+			new_input_neurons[copyTag1]->AddOutConnection(connection);
+			new_hidden_neurons[copyTag2]->AddInConnection(connection);
 		}
 	}
 	
@@ -520,19 +502,21 @@ Network * Network::copy()
 		int copyTag1 = neuron1->copyTag;
 		for(std::set<Connection *>::iterator it2 = neuron1->outConnections.begin(); it2 != neuron1->outConnections.end(); it2++)
 		{
-			Neuron *neuron2 = (*it2)->neuron;
+			Neuron *neuron2 = (*it2)->outNeuron;
 			int copyTag2 = neuron2->copyTag;
 			double weight = (*it2)->weight;
 			
 			if(neuron2->type == Neuron::hidden)
 			{
-				new_hidden_neurons[copyTag1]->AddOutNeuron(new_hidden_neurons[copyTag2], weight);
-				new_hidden_neurons[copyTag2]->AddInNeuron(new_hidden_neurons[copyTag1]);
+				Connection *connection = new Connection(new_hidden_neurons[copyTag1], new_hidden_neurons[copyTag2], weight);
+				new_hidden_neurons[copyTag1]->AddOutConnection(connection);
+				new_hidden_neurons[copyTag2]->AddInConnection(connection);
 			}
 			else
 			{
-				new_hidden_neurons[copyTag1]->AddOutNeuron(new_output_neurons[copyTag2], weight);
-				new_output_neurons[copyTag2]->AddInNeuron(new_hidden_neurons[copyTag1]);
+				Connection *connection = new Connection(new_hidden_neurons[copyTag1], new_output_neurons[copyTag2], weight);
+				new_hidden_neurons[copyTag1]->AddOutConnection(connection);
+				new_output_neurons[copyTag2]->AddInConnection(connection);
 			}
 		}
 	}

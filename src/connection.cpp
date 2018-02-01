@@ -1,14 +1,14 @@
 #include "connection.h"
 using namespace EGDNN;
 
-Connection::Connection(Neuron *neuron) : neuron(neuron)
+Connection::Connection(Neuron *inNeuron, Neuron *outNeuron) : inNeuron(inNeuron), outNeuron(outNeuron)
 {
 	weight = fRand(0, 1e-3);
 	velocity = 0;
 	sumGradient = 0;
 }
 
-Connection::Connection(Neuron *neuron, double weight) : neuron(neuron), weight(weight)
+Connection::Connection(Neuron *inNeuron, Neuron *outNeuron, double weight) : inNeuron(inNeuron), outNeuron(outNeuron), weight(weight)
 {
 	velocity = 0;
 	sumGradient = 0;

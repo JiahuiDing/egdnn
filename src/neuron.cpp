@@ -14,7 +14,8 @@ Neuron::Neuron(int outputTag, Type type) : outputTag(outputTag), type(type)
 	gradient = 0;
 	velocity = 0;
 	sumGradient = 0;
-	counter = 0;
+	forwardCounter = 0;
+	backwardCounter = 0;
 }
 
 // Copy the outputTag, type, bias from another neuron. Cannot copy its connection.
@@ -29,7 +30,8 @@ Neuron::Neuron(Neuron *neuron) : outputTag(neuron->outputTag), type(neuron->type
 	gradient = 0;
 	velocity = 0;
 	sumGradient = 0;
-	counter = 0;
+	forwardCounter = 0;
+	backwardCounter = 0;
 }
 
 Neuron::~Neuron()
@@ -39,12 +41,6 @@ Neuron::~Neuron()
 		delete (*it);
 	}
 	outConnections.clear();
-	
-	for(std::set<Connection *>::iterator it = inConnections.begin(); it != inConnections.end(); it++)
-	{
-		delete (*it);
-	}
-	inConnections.clear();
 }
 
 // calculate the value and activeValue of all neuron in the network
@@ -57,7 +53,7 @@ void Neuron::PropagateValue()
 		{
 			for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 			{
-				(*it)->neuron->value += (*it)->weight * activeValue;
+				(*it)->outNeuron->value += (*it)->weight * activeValue;
 			}
 		}
 	}
@@ -70,7 +66,7 @@ void Neuron::PropagateValue()
 		{
 			for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 			{
-				(*it)->neuron->value += (*it)->weight * activeValue;
+				(*it)->outNeuron->value += (*it)->weight * activeValue;
 			}
 		}
 	}
@@ -90,7 +86,7 @@ void Neuron::CalGradient()
 		{
 			for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 			{
-				(*it)->AddGradient((*it)->neuron->gradient * activeValue);
+				(*it)->AddGradient((*it)->outNeuron->gradient * activeValue);
 			}
 		}
 	}
@@ -102,14 +98,14 @@ void Neuron::CalGradient()
 		{
 			for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 			{
-				gradient += (*it)->neuron->gradient * (*it)->weight;
+				gradient += (*it)->outNeuron->gradient * (*it)->weight;
 			}
 			gradient *= ReluGrad(value);
 			sumGradient += gradient;
 		
 			for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 			{
-				(*it)->AddGradient((*it)->neuron->gradient * activeValue);
+				(*it)->AddGradient((*it)->outNeuron->gradient * activeValue);
 			}
 		}
 	}
@@ -134,7 +130,7 @@ void Neuron::UpdateWeight(double learning_rate, double velocity_decay, double re
 	}
 }
 
-// Reset states except sumGradient and velocity
+// Reset states except sumGradient and velocity, set forwardCounter and backwardCounter
 void Neuron::ResetState()
 {
 	if(type != input)
@@ -147,34 +143,21 @@ void Neuron::ResetState()
 		trueValue = 0;
 	}
 	gradient = 0;
-	counter = 0;
+	
+	forwardCounter = inConnections.size();
+	backwardCounter = outConnections.size();
 }
 
-// Propagate counter
-void Neuron::PropagateCounter()
+// add an output connection
+void Neuron::AddOutConnection(Connection *connection)
 {
-	for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
-	{
-		(*it)->neuron->counter++;
-	}
+	outConnections.insert(connection);
 }
 
-// add an output neuron
-void Neuron::AddOutNeuron(Neuron *neuron)
+// add an input connection
+void Neuron::AddInConnection(Connection *connection)
 {
-	outConnections.insert(new Connection(neuron));
-}
-
-// add an output neuron
-void Neuron::AddOutNeuron(Neuron *neuron, double weight)
-{
-	outConnections.insert(new Connection(neuron, weight));
-}
-
-// add an input neuron
-void Neuron::AddInNeuron(Neuron *neuron)
-{
-	inConnections.insert(new Connection(neuron));
+	inConnections.insert(connection);
 }
 
 double Neuron::CalError()
@@ -186,7 +169,7 @@ bool Neuron::ContainOutNeuron(Neuron *neuron)
 {
 	for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 	{
-		if((*it)->neuron == neuron)
+		if((*it)->outNeuron == neuron)
 		{
 			return true;
 		}
@@ -198,7 +181,7 @@ bool Neuron::ContainInNeuron(Neuron *neuron)
 {
 	for(std::set<Connection *>::iterator it = inConnections.begin(); it != inConnections.end(); it++)
 	{
-		if((*it)->neuron == neuron)
+		if((*it)->inNeuron == neuron)
 		{
 			return true;
 		}
