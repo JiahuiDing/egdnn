@@ -31,6 +31,7 @@ namespace EGDNN
 		
 		int forwardCounter;
 		int backwardCounter;
+		int displayTag; // only used in Network::Display
 		int copyTag;
 		bool visited; // only used in Network::Reachable
 		

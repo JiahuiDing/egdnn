@@ -107,12 +107,13 @@ namespace EGDNN
 			
 			// reproduce
 			network[0] = network[bestNetwork];
-			if(network[0]->CalNeuronNum() > 500) populationSize = 1;
+			network[0]->Eliminate();
 			for(int networkCnt = 1; networkCnt < populationSize; networkCnt++)
 			{
 				network[networkCnt] = network[0]->copy();
 				network[networkCnt]->Mutate();
 			}
+			network[0]->Display();
 		}
 		
 		

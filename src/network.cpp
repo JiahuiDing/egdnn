@@ -210,10 +210,10 @@ void Network::UpdateWeight()
 
 void Network::Mutate()
 {
-	int newHiddenNeuronNum = 3;
-	double rateInputHidden = 1.1;
-	double rateHiddenOutput = 1.1;
-	double rateHiddenHidden = 1.1;
+	int newHiddenNeuronNum = 1;
+	double rateInputHidden = 1.3;
+	double rateHiddenHidden = 1.3;
+	double rateHiddenOutput = 1.3;
 	
 	// add hidden neurons
 	for(int i = 0; i < newHiddenNeuronNum; i++)
@@ -275,6 +275,52 @@ void Network::Mutate()
 					neuron1->AddInConnection(connection);
 				}
 			}
+		}
+	}
+}
+
+void Network::Eliminate()
+{
+	for(std::vector<Neuron *>::iterator it1 = input_neurons.begin(); it1 != input_neurons.end(); it1++)
+	{
+		Neuron *neuron1 = *it1;
+		for(std::set<Connection *>::iterator it2 = neuron1->outConnections.begin(); it2 != neuron1->outConnections.end(); it2++)
+		{
+			Connection *connection = *it2;
+			Neuron *neuron2 = connection->outNeuron;
+			
+			if(fabs(connection->weight) < 1e-8)
+			{
+				neuron1->outConnections.erase(connection);
+				neuron2->inConnections.erase(connection);
+				delete connection;
+			}
+		}
+	}
+	for(std::set<Neuron *>::iterator it1 = hidden_neurons.begin(); it1 != hidden_neurons.end(); it1++)
+	{
+		Neuron *neuron1 = *it1;
+		for(std::set<Connection *>::iterator it2 = neuron1->outConnections.begin(); it2 != neuron1->outConnections.end(); it2++)
+		{
+			Connection *connection = *it2;
+			Neuron *neuron2 = connection->outNeuron;
+			
+			if(fabs(connection->weight) < 1e-8)
+			{
+				neuron1->outConnections.erase(connection);
+				neuron2->inConnections.erase(connection);
+				delete connection;
+			}
+		}
+	}
+	
+	for(std::set<Neuron *>::iterator it = hidden_neurons.begin(); it != hidden_neurons.end(); it++)
+	{
+		Neuron *neuron = *it;
+		if(neuron->inConnections.size() == 0 && neuron->outConnections.size() == 0)
+		{
+			hidden_neurons.erase(neuron);
+			delete neuron;
 		}
 	}
 }
@@ -358,13 +404,18 @@ int Network::CalConnectionNum()
 
 double Network::CalAverageWeight()
 {
+	if(CalConnectionNum() == 0)
+	{
+		return 0;
+	}
+	
 	double sum = 0;
 	for(std::vector<Neuron *>::iterator it1 = input_neurons.begin(); it1 != input_neurons.end(); it1++)
 	{
 		Neuron *neuron = *it1;
 		for(std::set<Connection *>::iterator it2 = neuron->outConnections.begin(); it2 != neuron->outConnections.end(); it2++)
 		{
-			sum += (*it2)->weight;
+			sum += fabs((*it2)->weight);
 		}
 	}
 	for(std::set<Neuron *>::iterator it1 = hidden_neurons.begin(); it1 != hidden_neurons.end(); it1++)
@@ -372,7 +423,7 @@ double Network::CalAverageWeight()
 		Neuron *neuron = *it1;
 		for(std::set<Connection *>::iterator it2 = neuron->outConnections.begin(); it2 != neuron->outConnections.end(); it2++)
 		{
-			sum += (*it2)->weight;
+			sum += fabs((*it2)->weight);
 		}
 	}
 	return sum / CalConnectionNum();
@@ -562,10 +613,59 @@ Network * Network::copy()
 
 void Network::Display()
 {
+	int cnt = 0;
+	for(std::vector<Neuron *>::iterator it = input_neurons.begin(); it != input_neurons.end(); it++)
+	{
+		Neuron *neuron = *it;
+		neuron->displayTag = cnt++;
+	}
+	cnt = 0;
+	for(std::set<Neuron *>::iterator it = hidden_neurons.begin(); it != hidden_neurons.end(); it++)
+	{
+		Neuron *neuron = *it;
+		neuron->displayTag = cnt++;
+	}
+	cnt = 0;
 	for(std::vector<Neuron *>::iterator it = output_neurons.begin(); it != output_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		std::cout << neuron->activeValue << " ";
+		neuron->displayTag = cnt++;
+	}
+	
+	std::cout << "display network structure : \n";
+	for(std::vector<Neuron *>::iterator it1 = input_neurons.begin(); it1 != input_neurons.end(); it1++)
+	{
+		Neuron *neuron = *it1;
+		std::cout << "input " << neuron->displayTag << " : ";
+		for(std::set<Connection *>::iterator it2 = neuron->outConnections.begin(); it2 != neuron->outConnections.end(); it2++)
+		{
+			Connection *connection = *it2;
+			std::cout<< "hidden " << connection->outNeuron->displayTag << " weight " << connection->weight << " , ";
+		}
+		std::cout << "\n";
+	}
+	for(std::set<Neuron *>::iterator it1 = hidden_neurons.begin(); it1 != hidden_neurons.end(); it1++)
+	{
+		Neuron *neuron = *it1;
+		std::cout << "hidden " << neuron->displayTag << " ( bias " << neuron->bias << " ) : ";
+		for(std::set<Connection *>::iterator it2 = neuron->outConnections.begin(); it2 != neuron->outConnections.end(); it2++)
+		{
+			Connection *connection = *it2;
+			if(connection->outNeuron->type == Neuron::hidden)
+			{
+				std::cout << "hidden " << connection->outNeuron->displayTag << " weight " << connection->weight << " , ";
+			}
+			else
+			{
+				std::cout << "out " << connection->outNeuron->displayTag << " weight " << connection->weight << " , ";
+			}
+		}
+		std::cout << "\n";
+	}
+	for(std::vector<Neuron *>::iterator it1 = output_neurons.begin(); it1 != output_neurons.end(); it1++)
+	{
+		Neuron *neuron = *it1;
+		std::cout << "output " << neuron->displayTag << " ( bias " << neuron->bias << " ) \n";
 	}
 	std::cout << "\n";
 }
