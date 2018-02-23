@@ -211,9 +211,9 @@ void Network::UpdateWeight()
 void Network::Mutate()
 {
 	int newHiddenNeuronNum = 1;
-	double rateInputHidden = 1.3;
-	double rateHiddenHidden = 1.3;
-	double rateHiddenOutput = 1.3;
+	double rateInputHidden = 0.3;
+	double rateHiddenHidden = 0.3;
+	double rateHiddenOutput = 0.3;
 	
 	// add hidden neurons
 	for(int i = 0; i < newHiddenNeuronNum; i++)

@@ -66,10 +66,10 @@ void read_func(std::vector<std::vector<double>> &trainingSet, std::vector<std::v
 int main(int argc, char *argv[])
 {	
 	int maxIter = 1000000;
-	int batchSize = 16;
-	int evolutionTime = 100;
-	int populationSize = 5;
-	double learning_rate = 1e-2;
+	int batchSize = 100;
+	int evolutionTime = 20;
+	int populationSize = 2;
+	double learning_rate = 1e-3;
 	double velocity_decay = 0.9;
 	double regularization_l2 = 0.5;
 	double gradientClip = 1;
@@ -84,16 +84,16 @@ int main(int argc, char *argv[])
 	std::vector<std::vector<double>> testSet;
 	std::vector<std::vector<double>> testLabels;
 	
-	
+	/*
 	read_func(trainingSet, trainingLabels, training_N, 
 				testSet, testLabels, test_N, 
 				input_N, output_N);
+	*/
 	
-	/*
 	read_mnist(trainingSet, trainingLabels, training_N, 
 				testSet, testLabels, test_N, 
 				input_N, output_N);
-	*/
+	
 	
 	/*
 	SimpleNeuralNetwork(trainingSet, trainingLabels, training_N, 
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
 						learning_rate, velocity_decay, regularization_l2, gradientClip);
 	*/
 	
-	
+	/*
 	std::cout << "training_N : " << training_N << "\n";
 	std::cout << "test_N : " << test_N << "\n";
 	std::cout << "input_N : " << input_N << "\n";
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
 		
 		std::cout << "\n";
 	}
-	
+	*/
 	
 	EvolutionaryGradientDescentNeuralNetwork(trainingSet, trainingLabels, training_N, 
 											testSet, testLabels, test_N, 

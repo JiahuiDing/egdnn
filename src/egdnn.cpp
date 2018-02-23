@@ -113,7 +113,7 @@ namespace EGDNN
 				network[networkCnt] = network[0]->copy();
 				network[networkCnt]->Mutate();
 			}
-			network[0]->Display();
+			//network[0]->Display();
 		}
 		
 		
