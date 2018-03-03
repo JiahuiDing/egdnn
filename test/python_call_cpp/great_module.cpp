@@ -1,4 +1,11 @@
-#include <python2.7/Python.h>
+/*
+	compile :
+	g++ -fPIC -shared great_module.cpp -o great_module.so -l python3.5m
+*/
+
+#include <python3.5m/Python.h>
+#include <iostream>
+using namespace std;
 
 int great_function(int a)
 {
@@ -30,7 +37,23 @@ static PyMethodDef GreatModuleMethods[] =
 	{NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC initgreat_module(void)
+static struct PyModuleDef great_module =
 {
-	(void) Py_InitModule("great_module", GreatModuleMethods);
+	PyModuleDef_HEAD_INIT,
+	"great_module",
+	NULL,
+	-1,
+	GreatModuleMethods
+};
+
+PyMODINIT_FUNC PyInit_great_module(void)
+{
+	PyObject *m;
+	m = PyModule_Create(&great_module);
+	if(m == NULL)
+	{
+		return NULL;
+	}
+	cout << "init great_module module\n";
+	return m;
 }
