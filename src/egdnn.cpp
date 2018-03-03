@@ -138,3 +138,18 @@ void Egdnn::test(std::vector<std::vector<double>> testSet, std::vector<std::vect
 	std::cout << "test error : " << error / test_N << "\n";
 	std::cout << "test accuracy : " << (double) rightCnt / test_N << "\n\n";
 }
+
+std::vector<double> Egdnn::predict(std::vector<double> data)
+{
+	network[0]->SetInputValue(data);
+	network[0]->ForwardPropagation();
+	
+	std::vector<double> result;
+	for(std::vector<Neuron *>::iterator it = network[0]->output_neurons.begin(); it != network[0]->output_neurons.end(); it++)
+	{
+		Neuron *neuron = *it;
+		result.push_back(neuron->activeValue);
+	}
+	
+	return result;
+}
