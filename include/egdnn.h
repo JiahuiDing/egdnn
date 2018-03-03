@@ -15,10 +15,24 @@
 
 namespace EGDNN
 {
-	void EvolutionaryGradientDescentNeuralNetwork(std::vector<std::vector<double>> trainingSet, std::vector<std::vector<double>> trainingLabels, int training_N, 
-													std::vector<std::vector<double>> testSet, std::vector<std::vector<double>> testLabels, int test_N, 
-													int input_N, int output_N, int maxIter, int batchSize, int evolutionTime, int populationSize, 
-													double learning_rate, double velocity_decay, double regularization_l2, double gradientClip);
+	class Egdnn
+	{
+		public:
+		int input_N;
+		int output_N;
+		int populationSize;
+		
+		double learning_rate;
+		double velocity_decay;
+		double regularization_l2;
+		double gradientClip;
+		
+		std::vector<Network *> network;
+		
+		Egdnn(int input_N, int output_N, int populationSize, double learning_rate, double velocity_decay, double regularization_l2, double gradientClip);
+		void fit(std::vector<std::vector<double>> trainingSet, std::vector<std::vector<double>> trainingLabels, int training_N, int maxIter, int batchSize, int evolutionTime);
+		void test(std::vector<std::vector<double>> testSet, std::vector<std::vector<double>> testLabels, int test_N);
+	};
 }
 
 #endif

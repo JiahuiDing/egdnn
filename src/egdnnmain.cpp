@@ -126,11 +126,9 @@ int main(int argc, char *argv[])
 	}
 	*/
 	
-	EvolutionaryGradientDescentNeuralNetwork(trainingSet, trainingLabels, training_N, 
-											testSet, testLabels, test_N, 
-											input_N, output_N, maxIter, batchSize, evolutionTime, populationSize, 
-											learning_rate, velocity_decay, regularization_l2, gradientClip);
-	
+	Egdnn * model = new Egdnn(input_N, output_N, populationSize, learning_rate, velocity_decay, regularization_l2, gradientClip);
+	model->fit(trainingSet, trainingLabels, training_N, maxIter, batchSize, evolutionTime);
+	model->test(testSet, testLabels, test_N);
 	
 	return 0;
 }
