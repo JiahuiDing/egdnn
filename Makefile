@@ -2,7 +2,10 @@ CC = g++
 CFLAGS = -g -Wall
 CPPFLAGS = -I include
 
-all: build egdnn
+all: build egdnn egdnn_python.so
+
+egdnn_python.so: src/egdnn_python.cpp src/egdnnmain.cpp src/neuron.cpp src/connection.cpp src/network.cpp src/helper.cpp src/test.cpp src/egdnn.cpp
+	$(CC) $(CFLAGS) $(CPPFLAGS) -fPIC -shared $^ -o $@ -l python3.5m
 
 egdnn: build/egdnnmain.o build/neuron.o build/connection.o build/network.o build/helper.o build/test.o build/egdnn.o
 	$(CC) $(CFLAGS) $(CPPFLAGS) $^ -o $@

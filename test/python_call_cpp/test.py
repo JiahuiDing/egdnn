@@ -1,2 +1,2 @@
-from great_module import great_function
-print(great_function(2))
+import great_module
+print(great_module.great_function(2))

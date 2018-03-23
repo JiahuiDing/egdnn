@@ -33,6 +33,18 @@ namespace EGDNN
 		void fit(std::vector<std::vector<double>> trainingSet, std::vector<std::vector<double>> trainingLabels, int training_N, int maxIter, int batchSize, int evolutionTime);
 		void test(std::vector<std::vector<double>> testSet, std::vector<std::vector<double>> testLabels, int test_N);
 		std::vector<double> predict(std::vector<double> data);
+		
+		int val = 11;
+	
+		void set(int _val)
+		{
+			val = _val;
+		}
+	
+		int get()
+		{
+			return val;
+		}
 	};
 }
 
