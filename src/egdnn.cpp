@@ -24,8 +24,9 @@ Egdnn::Egdnn(int input_N, int output_N, int populationSize, double learning_rate
 	}
 }
 
-void Egdnn::fit(std::vector<std::vector<double>> trainingSet, std::vector<std::vector<double>> trainingLabels, int training_N, int maxIter, int batchSize, int evolutionTime)
+void Egdnn::fit(std::vector<std::vector<double>> trainingSet, std::vector<std::vector<double>> trainingLabels, int maxIter, int batchSize, int evolutionTime)
 {
+	int training_N = trainingSet.size();
 	struct timeval start, end;
 	gettimeofday(&start, NULL);
 	for(int iterCnt = 0; iterCnt < maxIter && kbhit() == false; iterCnt++)
@@ -118,8 +119,9 @@ void Egdnn::fit(std::vector<std::vector<double>> trainingSet, std::vector<std::v
 	}
 }
 
-void Egdnn::test(std::vector<std::vector<double>> testSet, std::vector<std::vector<double>> testLabels, int test_N)
+void Egdnn::test(std::vector<std::vector<double>> testSet, std::vector<std::vector<double>> testLabels)
 {
+	int test_N = testSet.size();
 	double error = 0;
 	int rightCnt = 0;
 	for(int data_i = 0; data_i < test_N; data_i++)

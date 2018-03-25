@@ -73,7 +73,7 @@ void Neuron::PropagateValue()
 	else // output neuron
 	{
 		value += bias;
-		//activeValue = Relu(value);
+		activeValue = value; // linear activation function, used for regression
 	}
 }
 
@@ -111,7 +111,7 @@ void Neuron::CalGradient()
 	}
 	else // output neuron
 	{
-		//gradient = - MeanSquareErrorGrad(activeValue, trueValue) * ReluGrad(value);
+		//gradient = - MeanSquareErrorGrad(activeValue, trueValue);
 		gradient = - SoftmaxCrossEntropyGrad(activeValue, trueValue);
 		sumGradient += gradient;
 	}

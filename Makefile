@@ -1,6 +1,7 @@
 CC = g++
-CFLAGS = -g -Wall
-CPPFLAGS = -I include
+#CFLAGS = -g -Wall
+CFLAGS = -g -w
+CPPFLAGS = -I include -I /usr/include/python3.5m
 
 all: build egdnn egdnn_python.so
 

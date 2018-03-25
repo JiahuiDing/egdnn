@@ -127,8 +127,8 @@ int main(int argc, char *argv[])
 	*/
 	
 	Egdnn * model = new Egdnn(input_N, output_N, populationSize, learning_rate, velocity_decay, regularization_l2, gradientClip);
-	model->fit(trainingSet, trainingLabels, training_N, maxIter, batchSize, evolutionTime);
-	model->test(testSet, testLabels, test_N);
+	model->fit(trainingSet, trainingLabels, maxIter, batchSize, evolutionTime);
+	model->test(testSet, testLabels);
 	
 	return 0;
 }
