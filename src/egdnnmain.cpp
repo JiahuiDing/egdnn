@@ -1,6 +1,5 @@
 #include "egdnnmain.h"
 #include "egdnn.h"
-#include "test.h"
 #include "helper.h"
 using namespace EGDNN;
 

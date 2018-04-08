@@ -81,8 +81,8 @@ void Egdnn::fit(std::vector<std::vector<double>> trainingSet, std::vector<std::v
 			std::cout << "accuracy " << (double)rightCnt[networkCnt] / (evolutionTime * batchSize) << " , ";
 			std::cout << "neuronNum " << network[networkCnt]->CalNeuronNum() << " , ";
 			std::cout << "connectionNum " << network[networkCnt]->CalConnectionNum() << " , ";
-			std::cout << "learning_rate " << network[networkCnt]->learning_rate << " , ";
-			std::cout << "velocity_decay " << network[networkCnt]->velocity_decay << " , ";
+			//std::cout << "learning_rate " << network[networkCnt]->learning_rate << " , ";
+			//std::cout << "velocity_decay " << network[networkCnt]->velocity_decay << " , ";
 			std::cout << "zeroRate " << (double)zeroCnt[networkCnt] / (evolutionTime * batchSize * network[networkCnt]->CalNeuronNum()) << " , ";
 			std::cout << "certainty " << certainty[networkCnt] / (evolutionTime * batchSize) << " , ";
 			std::cout << "averageWeight " << network[networkCnt]->CalAverageWeight() << "\n";

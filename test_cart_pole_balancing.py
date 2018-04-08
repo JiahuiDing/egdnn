@@ -1,15 +1,8 @@
 import egdnn_python as model
 import gym
 import numpy as np
-import math
-import keras
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.optimizers import SGD
-import time
 import random
 import matplotlib.pyplot as plt
-import getch
 
 # parameters
 gamma = 0.99
@@ -60,7 +53,7 @@ result = np.zeros(episode_num)
 input_N = 4
 output_N = 2
 
-populationSize = 5
+populationSize = 1
 learning_rate = 1e-2
 velocity_decay = 0.9
 regularization_l2 = 0.5
