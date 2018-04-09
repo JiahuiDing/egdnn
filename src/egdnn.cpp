@@ -73,19 +73,22 @@ void Egdnn::fit(std::vector<std::vector<double>> trainingSet, std::vector<std::v
 		
 		double minError = 1e9;
 		int bestNetwork = -1;
-		std::cout << "iter " << iterCnt << " performance : \n";
+		//std::cout << "iter " << iterCnt << " performance : \n";
 		for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
 		{
-			std::cout << "network " << networkCnt << " : ";
-			std::cout << std::setprecision(10) << "error " << error[networkCnt] / (evolutionTime * batchSize) << " , ";
-			std::cout << "accuracy " << (double)rightCnt[networkCnt] / (evolutionTime * batchSize) << " , ";
-			std::cout << "neuronNum " << network[networkCnt]->CalNeuronNum() << " , ";
-			std::cout << "connectionNum " << network[networkCnt]->CalConnectionNum() << " , ";
+			
+			//std::cout << "network " << networkCnt << " : ";
+			//std::cout << std::setprecision(10) << "error " << error[networkCnt] / (evolutionTime * batchSize) << " , ";
+			//std::cout << "accuracy " << (double)rightCnt[networkCnt] / (evolutionTime * batchSize) << " , ";
+			//std::cout << "neuronNum " << network[networkCnt]->CalNeuronNum() << " , ";
+			//std::cout << "connectionNum " << network[networkCnt]->CalConnectionNum() << " , ";
 			//std::cout << "learning_rate " << network[networkCnt]->learning_rate << " , ";
 			//std::cout << "velocity_decay " << network[networkCnt]->velocity_decay << " , ";
 			std::cout << "zeroRate " << (double)zeroCnt[networkCnt] / (evolutionTime * batchSize * network[networkCnt]->CalNeuronNum()) << " , ";
-			std::cout << "certainty " << certainty[networkCnt] / (evolutionTime * batchSize) << " , ";
-			std::cout << "averageWeight " << network[networkCnt]->CalAverageWeight() << "\n";
+			//std::cout << "certainty " << certainty[networkCnt] / (evolutionTime * batchSize) << " , ";
+			std::cout << "averageWeight " << network[networkCnt]->CalAverageWeight() << " , ";
+			std::cout << "\n";
+			
 			
 			if(error[networkCnt] < minError)
 			{
@@ -95,7 +98,7 @@ void Egdnn::fit(std::vector<std::vector<double>> trainingSet, std::vector<std::v
 		}
 		gettimeofday(&end, NULL);
 		double timeuse = 1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec - start.tv_usec;
-		std::cout << "time : " << timeuse / 1000000 << " s\n\n";
+		//std::cout << "time : " << timeuse / 1000000 << " s\n\n";
 		gettimeofday(&start, NULL);
 		
 		// kill all networks except the best

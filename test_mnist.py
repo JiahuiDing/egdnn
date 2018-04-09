@@ -12,14 +12,12 @@ output_N = 10
 populationSize = 1
 learning_rate = 1e-3
 velocity_decay = 0.9
-regularization_l2 = 0.5
+regularization_l2 = 1e-2
 gradientClip = 1
 
-#maxIter = 1000000
-maxIter = 1
+maxIter = 1000000
 batchSize = 100
-#evolutionTime = 20
-evolutionTime = 100
+evolutionTime = 5
 
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
@@ -35,6 +33,5 @@ y_test = keras.utils.to_categorical(y_test, output_N)
 
 # model
 model.init(input_N, output_N, populationSize, learning_rate, velocity_decay, regularization_l2, gradientClip)
-for _ in range(100000):
-	model.fit(x_train, y_train, maxIter, batchSize, evolutionTime)
+model.fit(x_train, y_train, maxIter, batchSize, evolutionTime)
 model.test(x_test, y_test)

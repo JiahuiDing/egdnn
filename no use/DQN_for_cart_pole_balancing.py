@@ -4,7 +4,7 @@ import math
 import keras
 from keras.models import Sequential
 from keras.layers import Dense
-from keras.optimizers import SGD
+from keras import optimizers
 import time
 import random
 import matplotlib.pyplot as plt
@@ -12,6 +12,7 @@ import getch
 
 # parameters
 batch_size = 100
+alpha = 0.1
 gamma = 0.99
 memory_size = 100000
 episode_num = 100000
@@ -58,8 +59,8 @@ result = np.zeros(episode_num)
 
 # model
 model = Sequential()
-model.add(Dense(64, activation = 'relu', input_dim = 4))
-model.add(Dense(64, activation = 'relu'))
+model.add(Dense(32, activation = 'relu', input_dim = 4))
+model.add(Dense(32, activation = 'relu'))
 #model.add(Dense(50, activation = 'relu'))
 model.add(Dense(2, activation = 'linear'))
 model.compile(loss = 'mse', optimizer = 'rmsprop')
@@ -103,5 +104,5 @@ for episode_cnt in range(episode_num):
 			if data[i].done:
 				y_train[i][data[i].action] = -1
 			else:
-				y_train[i][data[i].action] = data[i].reward + gamma * max(score[i])
+				y_train[i][data[i].action] = (1 - alpha) * y_train[i][data[i].action] + alpha * (data[i].reward + gamma * max(score[i]))
 		model.fit(x_train, y_train, epochs = 1, batch_size = batch_size, verbose = 0)

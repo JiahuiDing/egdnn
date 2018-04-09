@@ -4,7 +4,7 @@ using namespace EGDNN;
 
 Neuron::Neuron(int outputTag, Type type) : outputTag(outputTag), type(type)
 {
-	bias = fRand(0, 1e-8);
+	bias = fRand(-1e-2, 1e-2);
 	outConnections.clear();
 	inConnections.clear();
 	

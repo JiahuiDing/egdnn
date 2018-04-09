@@ -210,9 +210,64 @@ void Network::UpdateWeight()
 
 void Network::Mutate()
 {
-	int newHiddenNeuronNum = 10;
+	
+	int hidden1_N = 32;
+	int hidden2_N = 32;
+	Neuron * n1[hidden1_N];
+	Neuron * n2[hidden2_N];
+	
+	for(int i = 0; i < hidden1_N; i++)
+	{
+		n1[i] = new Neuron(-1, Neuron::hidden);
+		hidden_neurons.insert(n1[i]);
+	}
+	
+	for(int i = 0; i < hidden2_N; i++)
+	{
+		n2[i] = new Neuron(-1, Neuron::hidden);
+		hidden_neurons.insert(n2[i]);
+	}
+	
+	for(std::vector<Neuron *>::iterator it = input_neurons.begin(); it != input_neurons.end(); it++)
+	{
+		Neuron *neuron1 = *it;
+		for(int i = 0; i < hidden1_N; i++)
+		{
+			Neuron *neuron2 = n1[i];
+			Connection *connection = new Connection(neuron1, neuron2);
+			neuron1->AddOutConnection(connection);
+			neuron2->AddInConnection(connection);
+		}
+	}
+	
+	for(int i = 0; i < hidden1_N; i++)
+	{
+		Neuron *neuron1 = n1[i];
+		for(int j = 0; j < hidden2_N; j++)
+		{
+			Neuron *neuron2 = n2[j];
+			Connection *connection = new Connection(neuron1, neuron2);
+			neuron1->AddOutConnection(connection);
+			neuron2->AddInConnection(connection);
+		}
+	}
+	
+	for(int i = 0; i < hidden2_N; i++)
+	{
+		Neuron *neuron1 = n2[i];
+		for(std::vector<Neuron *>::iterator it = output_neurons.begin(); it != output_neurons.end(); it++)
+		{
+			Neuron *neuron2 = *it;
+			Connection *connection = new Connection(neuron1, neuron2);
+			neuron1->AddOutConnection(connection);
+			neuron2->AddInConnection(connection);
+		}
+	}
+	
+	/*
+	int newHiddenNeuronNum = 100;
 	double rateInputHidden = 1;
-	double rateHiddenHidden = 1;
+	double rateHiddenHidden = 0;
 	double rateHiddenOutput = 1;
 	
 	// add hidden neurons
@@ -277,6 +332,7 @@ void Network::Mutate()
 			}
 		}
 	}
+	*/
 }
 
 void Network::Eliminate()

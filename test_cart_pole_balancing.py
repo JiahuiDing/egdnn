@@ -5,6 +5,7 @@ import random
 import matplotlib.pyplot as plt
 
 # parameters
+alpha = 0.1
 gamma = 0.99
 memory_size = 100000
 episode_num = 100000
@@ -55,8 +56,10 @@ output_N = 2
 
 populationSize = 1
 learning_rate = 1e-2
-velocity_decay = 0.9
-regularization_l2 = 0.5
+#velocity_decay = 0.9
+velocity_decay = 0
+#regularization_l2 = 1e-2
+regularization_l2 = 0
 gradientClip = 1
 
 maxIter = 1
@@ -106,5 +109,5 @@ for episode_cnt in range(episode_num):
 			if data[i].done:
 				y_train[i][data[i].action] = -1
 			else:
-				y_train[i][data[i].action] = data[i].reward + gamma * max(score[i])
+				y_train[i][data[i].action] = (1 - alpha) * y_train[i][data[i].action] + alpha * (data[i].reward + gamma * max(score[i]))
 		model.fit(x_train, y_train, maxIter, batchSize, evolutionTime)
