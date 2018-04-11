@@ -30,9 +30,10 @@ namespace EGDNN
 		std::vector<Network *> network;
 		
 		Egdnn(int input_N, int output_N, int populationSize, double learning_rate, double velocity_decay, double regularization_l2, double gradientClip);
-		void fit(std::vector<std::vector<double>> trainingSet, std::vector<std::vector<double>> trainingLabels, int maxIter, int batchSize, int evolutionTime);
-		void test(std::vector<std::vector<double>> testSet, std::vector<std::vector<double>> testLabels);
-		std::vector<double> predict(std::vector<double> data);
+		void fit(std::vector<std::vector<double>> trainingSet, std::vector<std::vector<double>> trainingLabels, int iterNum, int batchSize);
+		std::vector<double> predict(int netId, std::vector<double> data);
+		double test(int netId, std::vector<std::vector<double>> testSet, std::vector<std::vector<double>> testLabels);
+		void evolution(int bestNetId);
 	};
 }
 

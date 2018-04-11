@@ -8,16 +8,14 @@ import matplotlib.pylab as plt
 input_N = 784
 output_N = 10
 
-#populationSize = 2
-populationSize = 1
+populationSize = 3
 learning_rate = 1e-3
 velocity_decay = 0.9
-regularization_l2 = 1e-2
+regularization_l2 = 0.1
 gradientClip = 1
 
-maxIter = 1000000
+iterNum = 5
 batchSize = 100
-evolutionTime = 5
 
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
@@ -33,5 +31,12 @@ y_test = keras.utils.to_categorical(y_test, output_N)
 
 # model
 model.init(input_N, output_N, populationSize, learning_rate, velocity_decay, regularization_l2, gradientClip)
-model.fit(x_train, y_train, maxIter, batchSize, evolutionTime)
-model.test(x_test, y_test)
+for evolutionCnt in range(100000):
+	print('evolution', evolutionCnt)
+	model.fit(x_train[:50000], y_train[:50000], iterNum, batchSize)
+	score = np.zeros(populationSize)
+	for netId in range(populationSize):
+		score[netId] = model.test(netId, x_train[50000:], y_train[50000:])
+	model.evolution(np.argmax(score))
+	if model.kbhit():
+		break

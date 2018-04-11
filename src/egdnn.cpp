@@ -24,137 +24,135 @@ Egdnn::Egdnn(int input_N, int output_N, int populationSize, double learning_rate
 	}
 }
 
-void Egdnn::fit(std::vector<std::vector<double>> trainingSet, std::vector<std::vector<double>> trainingLabels, int maxIter, int batchSize, int evolutionTime)
+void Egdnn::fit(std::vector<std::vector<double>> trainingSet, std::vector<std::vector<double>> trainingLabels, int iterNum, int batchSize)
 {
 	int training_N = trainingSet.size();
 	struct timeval start, end;
 	gettimeofday(&start, NULL);
-	for(int iterCnt = 0; iterCnt < maxIter && kbhit() == false; iterCnt++)
+	
+	double error[populationSize];
+	int rightCnt[populationSize];
+	int zeroCnt[populationSize];
+	double certainty[populationSize];
+	for(int i = 0; i < populationSize; i++)
 	{
-		double error[populationSize];
-		int rightCnt[populationSize];
-		int zeroCnt[populationSize];
-		double certainty[populationSize];
-		for(int i = 0; i < populationSize; i++)
+		error[i] = 0;
+		rightCnt[i] = 0;
+		zeroCnt[i] = 0;
+		certainty[i] = 0;
+	}
+	
+	// train
+	for(int iterCnt = 0; iterCnt < iterNum; iterCnt++)
+	{
+		for(int batchCnt = 0; batchCnt < batchSize; batchCnt++)
 		{
-			error[i] = 0;
-			rightCnt[i] = 0;
-			zeroCnt[i] = 0;
-			certainty[i] = 0;
-		}
-		
-		for(int evolutionCnt = 0; evolutionCnt < evolutionTime; evolutionCnt++)
-		{
-			for(int batchCnt = 0; batchCnt < batchSize; batchCnt++)
-			{
-				int data_i = rand() % training_N;
-				for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
-				{
-					network[networkCnt]->SetInputValue(trainingSet[data_i]);
-					network[networkCnt]->SetOutputValue(trainingLabels[data_i]);
-					network[networkCnt]->ForwardPropagation();
-					network[networkCnt]->BackPropagation();
-					
-					error[networkCnt] += network[networkCnt]->CalError();
-					if(trainingLabels[data_i][network[networkCnt]->CalMaxLabel()] > 0.5)
-					{
-						rightCnt[networkCnt]++;
-					}
-					zeroCnt[networkCnt] += network[networkCnt]->CalZeroCnt();
-					certainty[networkCnt] += network[networkCnt]->CalCertainty();
-				}
-			}
-			
+			int data_i = rand() % training_N;
 			for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
 			{
-				network[networkCnt]->UpdateWeight();
+				network[networkCnt]->SetInputValue(trainingSet[data_i]);
+				network[networkCnt]->SetOutputValue(trainingLabels[data_i]);
+				network[networkCnt]->ForwardPropagation();
+				network[networkCnt]->BackPropagation();
+				
+				error[networkCnt] += network[networkCnt]->CalError();
+				if(trainingLabels[data_i][network[networkCnt]->CalMaxLabel()] > 0.5)
+				{
+					rightCnt[networkCnt]++;
+				}
+				zeroCnt[networkCnt] += network[networkCnt]->CalZeroCnt();
+				certainty[networkCnt] += network[networkCnt]->CalCertainty();
 			}
 		}
 		
-		double minError = 1e9;
-		int bestNetwork = -1;
-		//std::cout << "iter " << iterCnt << " performance : \n";
 		for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
 		{
-			
-			//std::cout << "network " << networkCnt << " : ";
-			//std::cout << std::setprecision(10) << "error " << error[networkCnt] / (evolutionTime * batchSize) << " , ";
-			//std::cout << "accuracy " << (double)rightCnt[networkCnt] / (evolutionTime * batchSize) << " , ";
-			//std::cout << "neuronNum " << network[networkCnt]->CalNeuronNum() << " , ";
-			//std::cout << "connectionNum " << network[networkCnt]->CalConnectionNum() << " , ";
-			//std::cout << "learning_rate " << network[networkCnt]->learning_rate << " , ";
-			//std::cout << "velocity_decay " << network[networkCnt]->velocity_decay << " , ";
-			std::cout << "zeroRate " << (double)zeroCnt[networkCnt] / (evolutionTime * batchSize * network[networkCnt]->CalNeuronNum()) << " , ";
-			//std::cout << "certainty " << certainty[networkCnt] / (evolutionTime * batchSize) << " , ";
-			std::cout << "averageWeight " << network[networkCnt]->CalAverageWeight() << " , ";
-			std::cout << "\n";
-			
-			
-			if(error[networkCnt] < minError)
-			{
-				minError = error[networkCnt];
-				bestNetwork = networkCnt;
-			}
+			network[networkCnt]->UpdateWeight();
 		}
-		gettimeofday(&end, NULL);
-		double timeuse = 1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec - start.tv_usec;
-		//std::cout << "time : " << timeuse / 1000000 << " s\n\n";
-		gettimeofday(&start, NULL);
-		
-		// kill all networks except the best
-		for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
-		{
-			if(networkCnt != bestNetwork)
-			{
-				delete network[networkCnt];
-			}
-		}
-		
-		// reproduce
-		network[0] = network[bestNetwork];
-		network[0]->Eliminate();
-		for(int networkCnt = 1; networkCnt < populationSize; networkCnt++)
-		{
-			network[networkCnt] = network[0]->copy();
-			network[networkCnt]->Mutate();
-		}
-		//network[0]->Display();
 	}
-}
-
-void Egdnn::test(std::vector<std::vector<double>> testSet, std::vector<std::vector<double>> testLabels)
-{
-	int test_N = testSet.size();
-	double error = 0;
-	int rightCnt = 0;
-	for(int data_i = 0; data_i < test_N; data_i++)
+	
+	// output statistics
+	for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
 	{
-		network[0]->SetInputValue(testSet[data_i]);
-		network[0]->SetOutputValue(testLabels[data_i]);
-		
-		network[0]->ForwardPropagation();
-		
-		error += network[0]->CalError();
-		if(testLabels[data_i][network[0]->CalMaxLabel()] > 0.5)
-		{
-			rightCnt++;
-		}
+		std::cout << "net " << networkCnt << " : ";
+		std::cout << std::setprecision(6) << "error " << error[networkCnt] / (iterNum * batchSize) << " , ";
+		std::cout << "accuracy " << (double)rightCnt[networkCnt] / (iterNum * batchSize) << " , ";
+		std::cout << "neuronNum " << network[networkCnt]->CalNeuronNum() << " , ";
+		std::cout << "connectionNum " << network[networkCnt]->CalConnectionNum() << " , ";
+		//std::cout << "learning_rate " << network[networkCnt]->learning_rate << " , ";
+		//std::cout << "velocity_decay " << network[networkCnt]->velocity_decay << " , ";
+		std::cout << "zeroRate " << (double)zeroCnt[networkCnt] / (iterNum * batchSize * network[networkCnt]->CalNeuronNum()) << " , ";
+		//std::cout << "certainty " << certainty[networkCnt] / (iterNum * batchSize) << " , ";
+		std::cout << "averageWeight " << network[networkCnt]->CalAverageWeight() << " , ";
+		std::cout << "\n";
 	}
-	std::cout << "test error : " << error / test_N << "\n";
-	std::cout << "test accuracy : " << (double) rightCnt / test_N << "\n\n";
+	
+	gettimeofday(&end, NULL);
+	double timeuse = 1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec - start.tv_usec;
+	//std::cout << "time : " << timeuse / 1000000 << " s\n\n";
+	//gettimeofday(&start, NULL);
 }
 
-std::vector<double> Egdnn::predict(std::vector<double> data)
+std::vector<double> Egdnn::predict(int netId, std::vector<double> data)
 {
-	network[0]->SetInputValue(data);
-	network[0]->ForwardPropagation();
+	network[netId]->SetInputValue(data);
+	network[netId]->ForwardPropagation();
 	
 	std::vector<double> result;
-	for(std::vector<Neuron *>::iterator it = network[0]->output_neurons.begin(); it != network[0]->output_neurons.end(); it++)
+	for(std::vector<Neuron *>::iterator it = network[netId]->output_neurons.begin(); it != network[netId]->output_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
 		result.push_back(neuron->activeValue);
 	}
 	
 	return result;
+}
+
+double Egdnn::test(int netId, std::vector<std::vector<double>> testSet, std::vector<std::vector<double>> testLabels)
+{
+	int test_N = testSet.size();
+	double error = 0;
+	double accuracy = 0;
+	for(int data_i = 0; data_i < test_N; data_i++)
+	{
+		network[netId]->SetInputValue(testSet[data_i]);
+		network[netId]->SetOutputValue(testLabels[data_i]);
+		
+		network[netId]->ForwardPropagation();
+		
+		error += network[netId]->CalError();
+		if(testLabels[data_i][network[netId]->CalMaxLabel()] > 0.5)
+		{
+			accuracy++;
+		}
+	}
+	error /= test_N;
+	accuracy /= test_N;
+	std::cout << "net " << netId << " : ";
+	std::cout << "test error " << error << " , ";
+	std::cout << "test accuracy " << accuracy << " , ";
+	std::cout << "\n";
+	return accuracy;
+}
+
+void Egdnn::evolution(int bestNetId)
+{
+	// kill all networks except the best
+	for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
+	{
+		if(networkCnt != bestNetId)
+		{
+			delete network[networkCnt];
+		}
+	}
+	
+	// reproduce
+	network[0] = network[bestNetId];
+	network[0]->Eliminate();
+	for(int networkCnt = 1; networkCnt < populationSize; networkCnt++)
+	{
+		network[networkCnt] = network[0]->copy();
+		network[networkCnt]->Mutate();
+	}
+	//network[0]->Display();
 }

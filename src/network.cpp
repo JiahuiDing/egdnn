@@ -210,7 +210,7 @@ void Network::UpdateWeight()
 
 void Network::Mutate()
 {
-	
+	/*
 	int hidden1_N = 32;
 	int hidden2_N = 32;
 	Neuron * n1[hidden1_N];
@@ -263,12 +263,12 @@ void Network::Mutate()
 			neuron2->AddInConnection(connection);
 		}
 	}
+	*/
 	
-	/*
-	int newHiddenNeuronNum = 100;
-	double rateInputHidden = 1;
+	int newHiddenNeuronNum = 5;
+	double rateInputHidden = 0.8;
 	double rateHiddenHidden = 0;
-	double rateHiddenOutput = 1;
+	double rateHiddenOutput = 0.8;
 	
 	// add hidden neurons
 	for(int i = 0; i < newHiddenNeuronNum; i++)
@@ -332,11 +332,10 @@ void Network::Mutate()
 			}
 		}
 	}
-	*/
 }
 
 void Network::Eliminate()
-{/*
+{
 	for(std::vector<Neuron *>::iterator it1 = input_neurons.begin(); it1 != input_neurons.end(); it1++)
 	{
 		Neuron *neuron1 = *it1;
@@ -378,7 +377,7 @@ void Network::Eliminate()
 			hidden_neurons.erase(neuron);
 			delete neuron;
 		}
-	}*/
+	}
 }
 
 void Network::Softmax()

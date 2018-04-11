@@ -46,11 +46,13 @@ class Memory:
 		else:
 			index = np.random.randint(self.pos)
 		
+		'''
 		if random.uniform(0,1) < 0.05:
 			for i in range(self.size):
 				if self.memory[i].done == True:
 					index = i
 					break
+		'''
 		
 		return self.memory[index]
 
@@ -59,8 +61,8 @@ result = np.zeros(episode_num)
 
 # model
 model = Sequential()
-model.add(Dense(32, activation = 'relu', input_dim = 4))
-model.add(Dense(32, activation = 'relu'))
+model.add(Dense(8, activation = 'relu', input_dim = 4))
+#model.add(Dense(4, activation = 'relu'))
 #model.add(Dense(50, activation = 'relu'))
 model.add(Dense(2, activation = 'linear'))
 model.compile(loss = 'mse', optimizer = 'rmsprop')

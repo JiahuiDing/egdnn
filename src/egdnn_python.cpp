@@ -27,13 +27,12 @@ static PyObject * _fit(PyObject *self, PyObject *args)
 {
 	std::vector<std::vector<double>> trainingSet;
 	std::vector<std::vector<double>> trainingLabels;
-	int maxIter;
+	int iterNum;
 	int batchSize;
-	int evolutionTime;
 	
 	PyObject * trainingSet_obj;
 	PyObject * trainingLabels_obj;
-	PyArg_ParseTuple(args, "OOiii", &trainingSet_obj, &trainingLabels_obj, &maxIter, &batchSize, &evolutionTime);
+	PyArg_ParseTuple(args, "OOii", &trainingSet_obj, &trainingLabels_obj, &iterNum, &batchSize);
 	
 	// parse trainingSet
 	int trainingSet_dim0 = PyArray_DIMS(trainingSet_obj)[0];
@@ -63,20 +62,94 @@ static PyObject * _fit(PyObject *self, PyObject *args)
 		}
 	}
 	
-	model->fit(trainingSet, trainingLabels, maxIter, batchSize, evolutionTime);
+	model->fit(trainingSet, trainingLabels, iterNum, batchSize);
 	
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
+static PyObject * _predict(PyObject *self, PyObject *args)
+{
+	int netId;
+	std::vector<double> data;
+	std::vector<double> prediction;
+	
+	PyObject * data_obj;
+	PyArg_ParseTuple(args, "iO", &netId, &data_obj);
+	
+	// parse data
+	int data_dim = PyArray_DIMS(data_obj)[0];
+	double * data_arr = static_cast<double *>(PyArray_DATA(data_obj));
+	data.resize(data_dim);
+	for(int i = 0; i < data_dim; i++)
+	{
+		data[i] = data_arr[i];
+	}
+	
+	// get prediction
+	prediction = model->predict(netId, data);
+	
+	// construct ndarray
+	npy_intp prediction_dims[] = {prediction.size()};
+	PyObject * prediction_obj = PyArray_SimpleNew(1, prediction_dims, NPY_FLOAT64);	
+	double * prediction_arr = static_cast<double *>(PyArray_DATA(prediction_obj));
+	for(int i = 0; i < prediction.size(); i++)
+	{
+		prediction_arr[i] = prediction[i];
+	}
+	
+	return prediction_obj;
+}
+
+static PyObject * _predict_batch(PyObject *self, PyObject *args)
+{
+	int netId;
+	std::vector<std::vector<double>> data;
+	
+	PyObject * data_obj;
+	PyArg_ParseTuple(args, "iO", &netId, &data_obj);
+	
+	// parse data
+	int data_dim0 = PyArray_DIMS(data_obj)[0];
+	int data_dim1 = PyArray_DIMS(data_obj)[1];
+	double * data_arr = static_cast<double *>(PyArray_DATA(data_obj));
+	data.resize(data_dim0);
+	for(int i = 0; i < data_dim0; i++)
+	{
+		data[i].resize(data_dim1);
+		for(int j = 0; j < data_dim1; j++)
+		{
+			data[i][j] = *(data_arr + i * data_dim1 + j);
+		}
+	}
+	
+	// construct ndarray
+	npy_intp prediction_dims[] = {data_dim0, model->output_N};
+	PyObject * prediction_obj = PyArray_SimpleNew(2, prediction_dims, NPY_FLOAT64);	
+	double * prediction_arr = static_cast<double *>(PyArray_DATA(prediction_obj));
+	for(int i = 0; i < data_dim0; i++)
+	{
+		// get prediction
+		std::vector<double> prediction = model->predict(netId, data[i]);
+		for(int j = 0; j < model->output_N; j++)
+		{
+			*(prediction_arr + i * model->output_N + j) = prediction[j];
+		}
+	}
+	
+	return prediction_obj;
+}
+
 static PyObject * _test(PyObject *self, PyObject *args)
 {
+	int netId;
 	std::vector<std::vector<double>> testSet;
 	std::vector<std::vector<double>> testLabels;
+	double accuracy;
 	
 	PyObject * testSet_obj;
 	PyObject * testLabels_obj;
-	PyArg_ParseTuple(args, "OO", &testSet_obj, &testLabels_obj);
+	PyArg_ParseTuple(args, "iOO", &netId, &testSet_obj, &testLabels_obj);
 	
 	// parse testSet
 	int testSet_dim0 = PyArray_DIMS(testSet_obj)[0];
@@ -106,80 +179,26 @@ static PyObject * _test(PyObject *self, PyObject *args)
 		}
 	}
 	
-	model->test(testSet, testLabels);
+	accuracy = model->test(netId, testSet, testLabels);
+	
+	return PyFloat_FromDouble(accuracy);
+}
+
+static PyObject * _evolution(PyObject *self, PyObject *args)
+{
+	int bestNetId;
+	
+	PyArg_ParseTuple(args, "i", &bestNetId);
+	
+	model->evolution(bestNetId);
 	
 	Py_INCREF(Py_None);
 	return Py_None;
 }
 
-static PyObject * _predict(PyObject *self, PyObject *args)
+static PyObject * _kbhit(PyObject *self, PyObject *args)
 {
-	std::vector<double> data;
-	std::vector<double> prediction;
-	
-	PyObject * data_obj;
-	PyArg_ParseTuple(args, "O", &data_obj);
-	
-	// parse data
-	int data_dim = PyArray_DIMS(data_obj)[0];
-	double * data_arr = static_cast<double *>(PyArray_DATA(data_obj));
-	data.resize(data_dim);
-	for(int i = 0; i < data_dim; i++)
-	{
-		data[i] = data_arr[i];
-	}
-	
-	// get prediction
-	prediction = model->predict(data);
-	
-	// construct ndarray
-	npy_intp prediction_dims[] = {prediction.size()};
-	PyObject * prediction_obj = PyArray_SimpleNew(1, prediction_dims, NPY_FLOAT64);	
-	double * prediction_arr = static_cast<double *>(PyArray_DATA(prediction_obj));
-	for(int i = 0; i < prediction.size(); i++)
-	{
-		prediction_arr[i] = prediction[i];
-	}
-	
-	return prediction_obj;
-}
-
-static PyObject * _predict_batch(PyObject *self, PyObject *args)
-{
-	std::vector<std::vector<double>> data;
-	
-	PyObject * data_obj;
-	PyArg_ParseTuple(args, "O", &data_obj);
-	
-	// parse data
-	int data_dim0 = PyArray_DIMS(data_obj)[0];
-	int data_dim1 = PyArray_DIMS(data_obj)[1];
-	double * data_arr = static_cast<double *>(PyArray_DATA(data_obj));
-	data.resize(data_dim0);
-	for(int i = 0; i < data_dim0; i++)
-	{
-		data[i].resize(data_dim1);
-		for(int j = 0; j < data_dim1; j++)
-		{
-			data[i][j] = *(data_arr + i * data_dim1 + j);
-		}
-	}
-	
-	// construct ndarray
-	npy_intp prediction_dims[] = {data_dim0, model->output_N};
-	PyObject * prediction_obj = PyArray_SimpleNew(2, prediction_dims, NPY_FLOAT64);	
-	double * prediction_arr = static_cast<double *>(PyArray_DATA(prediction_obj));
-	for(int i = 0; i < data_dim0; i++)
-	{
-		// get prediction
-		std::vector<double> prediction = model->predict(data[i]);
-		for(int j = 0; j < model->output_N; j++)
-		{
-			*(prediction_arr + i * model->output_N + j) = prediction[j];
-		}
-	}
-	
-	return prediction_obj;
+	return PyBool_FromLong(kbhit());
 }
 
 static PyMethodDef Methods[] = 
@@ -197,12 +216,6 @@ static PyMethodDef Methods[] =
 		""
 	},
 	{
-		"test",
-		_test,
-		METH_VARARGS,
-		""
-	},
-	{
 		"predict",
 		_predict,
 		METH_VARARGS,
@@ -211,6 +224,24 @@ static PyMethodDef Methods[] =
 	{
 		"predict_batch",
 		_predict_batch,
+		METH_VARARGS,
+		""
+	},
+	{
+		"test",
+		_test,
+		METH_VARARGS,
+		""
+	},
+	{
+		"evolution",
+		_evolution,
+		METH_VARARGS,
+		""
+	},
+	{
+		"kbhit",
+		_kbhit,
 		METH_VARARGS,
 		""
 	},
