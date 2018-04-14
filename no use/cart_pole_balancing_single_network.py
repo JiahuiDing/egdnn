@@ -1,3 +1,7 @@
+# single hidden layer, 32 neurons
+# only rmsprop, rmsprop_rho = 0.9, stable_eps = 1e-6
+# pass the test after about 1000 iterations
+
 import egdnn_python as model
 import gym
 import numpy as np
@@ -34,6 +38,25 @@ class Memory:
 			self.full = True
 	
 	def random_get(self):
+		'''
+		if random.uniform(0,1) < 0.05:
+			while True:
+				if self.full:
+					index = np.random.randint(self.size)
+				else:
+					index = np.random.randint(self.pos)
+				if self.memory[index].done == True:
+					break
+		else:
+			while True:
+				if self.full:
+					index = np.random.randint(self.size)
+				else:
+					index = np.random.randint(self.pos)
+				if self.memory[index].done == False:
+					break
+		'''
+	
 		if self.full:
 			index = np.random.randint(self.size)
 		else:
@@ -55,7 +78,7 @@ input_N = 4
 output_N = 2
 
 populationSize = 1
-learning_rate = 1e-5
+learning_rate = 1e-3
 velocity_decay = 0.9
 regularization_l2 = 1e-2
 gradientClip = 1
