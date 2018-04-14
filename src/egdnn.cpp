@@ -71,7 +71,7 @@ void Egdnn::fit(std::vector<std::vector<double>> trainingSet, std::vector<std::v
 		}
 	}
 	
-	// output statistics
+	/*
 	for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
 	{
 		std::cout << "net " << networkCnt << " : ";
@@ -79,18 +79,18 @@ void Egdnn::fit(std::vector<std::vector<double>> trainingSet, std::vector<std::v
 		std::cout << "accuracy " << (double)rightCnt[networkCnt] / (iterNum * batchSize) << " , ";
 		std::cout << "neuronNum " << network[networkCnt]->CalNeuronNum() << " , ";
 		std::cout << "connectionNum " << network[networkCnt]->CalConnectionNum() << " , ";
-		//std::cout << "learning_rate " << network[networkCnt]->learning_rate << " , ";
-		//std::cout << "velocity_decay " << network[networkCnt]->velocity_decay << " , ";
+		std::cout << "learning_rate " << network[networkCnt]->learning_rate << " , ";
+		std::cout << "velocity_decay " << network[networkCnt]->velocity_decay << " , ";
 		std::cout << "zeroRate " << (double)zeroCnt[networkCnt] / (iterNum * batchSize * network[networkCnt]->CalNeuronNum()) << " , ";
-		//std::cout << "certainty " << certainty[networkCnt] / (iterNum * batchSize) << " , ";
+		std::cout << "certainty " << certainty[networkCnt] / (iterNum * batchSize) << " , ";
 		std::cout << "averageWeight " << network[networkCnt]->CalAverageWeight() << " , ";
 		std::cout << "\n";
 	}
+	*/
 	
 	gettimeofday(&end, NULL);
 	double timeuse = 1000000 * ( end.tv_sec - start.tv_sec ) + end.tv_usec - start.tv_usec;
 	//std::cout << "time : " << timeuse / 1000000 << " s\n\n";
-	//gettimeofday(&start, NULL);
 }
 
 std::vector<double> Egdnn::predict(int netId, std::vector<double> data)
@@ -155,4 +155,18 @@ void Egdnn::evolution(int bestNetId)
 		network[networkCnt]->Mutate();
 	}
 	//network[0]->Display();
+}
+
+void Egdnn::display()
+{
+	for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
+	{
+		std::cout << "net " << networkCnt << " : ";
+		std::cout << "neuronNum " << network[networkCnt]->CalNeuronNum() << " , ";
+		std::cout << "connectionNum " << network[networkCnt]->CalConnectionNum() << " , ";
+		//std::cout << "learning_rate " << network[networkCnt]->learning_rate << " , ";
+		//std::cout << "velocity_decay " << network[networkCnt]->velocity_decay << " , ";
+		std::cout << "averageWeight " << network[networkCnt]->CalAverageWeight() << " , ";
+		std::cout << "\n";
+	}
 }

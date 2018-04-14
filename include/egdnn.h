@@ -34,6 +34,7 @@ namespace EGDNN
 		std::vector<double> predict(int netId, std::vector<double> data);
 		double test(int netId, std::vector<std::vector<double>> testSet, std::vector<std::vector<double>> testLabels);
 		void evolution(int bestNetId);
+		void display();
 	};
 }
 

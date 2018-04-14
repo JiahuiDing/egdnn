@@ -201,6 +201,14 @@ static PyObject * _kbhit(PyObject *self, PyObject *args)
 	return PyBool_FromLong(kbhit());
 }
 
+static PyObject * _display(PyObject *self, PyObject *args)
+{
+	model->display();
+	
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMethodDef Methods[] = 
 {
 	{
@@ -236,6 +244,12 @@ static PyMethodDef Methods[] =
 	{
 		"evolution",
 		_evolution,
+		METH_VARARGS,
+		""
+	},
+	{
+		"display",
+		_display,
 		METH_VARARGS,
 		""
 	},

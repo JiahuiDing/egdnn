@@ -16,6 +16,10 @@ namespace EGDNN
 		double velocity;
 		double sumGradient; // store the sum gradient of a batch
 		
+		// rmsprop
+		double rmsprop_s;
+		double rmsprop_rho;
+		
 		Connection(Neuron *inNeuron, Neuron *outNeuron);
 		Connection(Neuron *inNeuron, Neuron *outNeuron, double weight);
 		void AddGradient(double gradient);

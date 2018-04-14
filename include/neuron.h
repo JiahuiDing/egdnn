@@ -29,6 +29,10 @@ namespace EGDNN
 		double velocity;
 		double sumGradient; // store the gradient of a batch
 		
+		// rmsprop
+		double rmsprop_s;
+		double rmsprop_rho;
+		
 		int forwardCounter;
 		int backwardCounter;
 		int displayTag; // only used in Network::Display

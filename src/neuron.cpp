@@ -4,7 +4,7 @@ using namespace EGDNN;
 
 Neuron::Neuron(int outputTag, Type type) : outputTag(outputTag), type(type)
 {
-	bias = fRand(-1e-2, 1e-2);
+	bias = fRand(-0.05, 0.05);
 	outConnections.clear();
 	inConnections.clear();
 	
@@ -16,6 +16,9 @@ Neuron::Neuron(int outputTag, Type type) : outputTag(outputTag), type(type)
 	sumGradient = 0;
 	forwardCounter = 0;
 	backwardCounter = 0;
+	
+	rmsprop_s = 0;
+	rmsprop_rho = 0.9;
 }
 
 // Copy the outputTag, type, bias from another neuron. Cannot copy its connection.
@@ -32,6 +35,9 @@ Neuron::Neuron(Neuron *neuron) : outputTag(neuron->outputTag), type(neuron->type
 	sumGradient = 0;
 	forwardCounter = 0;
 	backwardCounter = 0;
+	
+	rmsprop_s = 0;
+	rmsprop_rho = 0.9;
 }
 
 Neuron::~Neuron()
@@ -120,9 +126,15 @@ void Neuron::CalGradient()
 // Update outConnections weight and bias by gradient
 void Neuron::UpdateWeight(double learning_rate, double velocity_decay, double regularization_l2)
 {	
+	/*
 	velocity = velocity_decay * velocity + sumGradient;
 	sumGradient = 0;
 	bias = bias + learning_rate * velocity - learning_rate * regularization_l2 * bias;
+	*/
+	
+	rmsprop_s = rmsprop_rho * rmsprop_s + (1 - rmsprop_rho) * sumGradient * sumGradient;
+	bias = bias + learning_rate * sumGradient / sqrt(rmsprop_s + 1e-6);
+	sumGradient = 0;
 	
 	for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 	{

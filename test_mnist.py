@@ -36,7 +36,16 @@ for evolutionCnt in range(100000):
 	model.fit(x_train[:50000], y_train[:50000], iterNum, batchSize)
 	score = np.zeros(populationSize)
 	for netId in range(populationSize):
-		score[netId] = model.test(netId, x_train[50000:], y_train[50000:])
+		score[netId] = model.test(netId, x_train[59000:], y_train[59000:])
 	model.evolution(np.argmax(score))
 	if model.kbhit():
 		break
+
+prediction = np.zeros([populationSize, 10, output_N])
+for netId in range(populationSize):
+	prediction[netId] = model.predict_batch(netId, x_train[:10])
+for i in range(10):
+	for netId in range(populationSize):
+		print(prediction[netId][i])
+	plt.imshow(x_train[i].reshape(28,28), cmap = 'gray')
+	plt.show()

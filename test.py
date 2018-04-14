@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 # parameters
 alpha = 0.1
-gamma = 0.9
+gamma = 0.99
 memory_size = 100000
 episode_num = 100000
 env = gym.make('CartPole-v0')
@@ -54,10 +54,10 @@ result = np.zeros(episode_num)
 input_N = 4
 output_N = 2
 
-populationSize = 10
-learning_rate = 1e-2
+populationSize = 1
+learning_rate = 1e-5
 velocity_decay = 0.9
-regularization_l2 = 0.1
+regularization_l2 = 1e-2
 gradientClip = 1
 
 iterNum = 1
@@ -67,43 +67,30 @@ batchSize = 100
 model.init(input_N, output_N, populationSize, learning_rate, velocity_decay, regularization_l2, gradientClip)
 
 for episode_cnt in range(episode_num):
-	'''
 	if episode_cnt % 200 == 0 and episode_cnt != 0:
 		print('result average = {}'.format(np.mean(result[episode_cnt-200:episode_cnt])))
 		plt.plot(range(episode_cnt), result[:episode_cnt])
 		plt.show()
-	'''
+	observation_now = env.reset()
+	for t in range(10000):
+		# have a play and store the state action sequence
+		env.render()
+		score = model.predict(0, np.array(observation_now))
+		action = np.argmax(score)
+		if random.uniform(0, 1) < max(0.01, 1 - episode_cnt / 200):
+			action = np.random.randint(2)
+		observation_next, reward, done, info = env.step(action)
+		MEM.insert(observation_now, observation_next, action, reward, done)
+		observation_now = observation_next
 		
-	#test the networks and get training data
-	net_score = np.zeros(populationSize)
-	for _ in range(30):
-		for netId in range(populationSize):
-			observation_now = env.reset()
-			for t in range(10000):
-				# have a play and store the state action sequence
-				env.render()
-				score = model.predict(netId, np.array([observation_now]))
-				action = np.argmax(score)
-				observation_next, reward, done, info = env.step(action)
-				MEM.insert(observation_now, observation_next, action, reward, done)
-				observation_now = observation_next
-	
-				if done or t > 195:
-					net_score[netId] += t + 1
-					break
-	
-	# choose the best network
-	net_score /= 30
-	result[episode_cnt] = np.max(net_score)
-	print('episode_cnt = {} : Episode finished after {} timesteps'.format(episode_cnt, result[episode_cnt]))
-	model.evolution(np.argmax(net_score))
-	model.display()
-	
-	'''
-	# train the networks
-	if episode_cnt > 10 and np.min(result[episode_cnt-10:episode_cnt]) == 197:
+		if done or t > 195:
+			result[episode_cnt] = t + 1
+			print('episode_cnt = {} : Episode finished after {} timesteps'.format(episode_cnt, t+1))
+			break
+	# train the model
+	if episode_cnt > 100 and np.min(result[episode_cnt-10:episode_cnt]) == 197:
 		continue
-	for _ in range(1):
+	for _ in range(10):
 		data = [Memory.Data() for _ in range(batchSize)]
 		observation_now = np.zeros((batchSize, 4))
 		observation_next = np.zeros((batchSize, 4))
@@ -116,8 +103,7 @@ for episode_cnt in range(episode_num):
 		score = model.predict_batch(0, observation_next)
 		for i in range(batchSize):
 			if data[i].done:
-				y_train[i][data[i].action] = -100
+				y_train[i][data[i].action] = -1
 			else:
 				y_train[i][data[i].action] = (1 - alpha) * y_train[i][data[i].action] + alpha * (data[i].reward + gamma * max(score[i]))
 		model.fit(x_train, y_train, iterNum, batchSize)
-	'''
