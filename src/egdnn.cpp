@@ -24,7 +24,8 @@ Egdnn::Egdnn(int input_N, int output_N, int populationSize, double learning_rate
 	}
 }
 
-void Egdnn::fit(std::vector<std::vector<double>> trainingSet, std::vector<std::vector<double>> trainingLabels, int iterNum, int batchSize)
+// netId = -1 means train all networks
+void Egdnn::fit(int netId, std::vector<std::vector<double>> trainingSet, std::vector<std::vector<double>> trainingLabels, int iterNum, int batchSize)
 {
 	int training_N = trainingSet.size();
 	struct timeval start, end;
@@ -50,6 +51,9 @@ void Egdnn::fit(std::vector<std::vector<double>> trainingSet, std::vector<std::v
 			int data_i = rand() % training_N;
 			for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
 			{
+				if(netId != -1 && netId != networkCnt)
+					continue;
+					
 				network[networkCnt]->SetInputValue(trainingSet[data_i]);
 				network[networkCnt]->SetOutputValue(trainingLabels[data_i]);
 				network[networkCnt]->ForwardPropagation();
@@ -67,6 +71,9 @@ void Egdnn::fit(std::vector<std::vector<double>> trainingSet, std::vector<std::v
 		
 		for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
 		{
+			if(netId != -1 && netId != networkCnt)
+				continue;
+				
 			network[networkCnt]->UpdateWeight();
 		}
 	}

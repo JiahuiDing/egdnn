@@ -286,10 +286,10 @@ void Network::Mutate()
 	}
 	*/
 	
-	int newHiddenNeuronNum = 32;
-	double rateInputHidden = 1;
-	double rateHiddenHidden = 0;
-	double rateHiddenOutput = 1;
+	int newHiddenNeuronNum = (int) fRand(0,5);
+	double rateInputHidden = 0.9;
+	double rateHiddenHidden = 0.1;
+	double rateHiddenOutput = 0.9;
 	
 	// add hidden neurons
 	for(int i = 0; i < newHiddenNeuronNum; i++)

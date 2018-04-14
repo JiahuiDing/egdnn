@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 # parameters
 alpha = 0.1
 gamma = 0.99
-memory_size = 100000
+memory_size = 5000
 episode_num = 100000
 env = gym.make('CartPole-v0')
 
@@ -129,4 +129,4 @@ for episode_cnt in range(episode_num):
 				y_train[i][data[i].action] = -1
 			else:
 				y_train[i][data[i].action] = (1 - alpha) * y_train[i][data[i].action] + alpha * (data[i].reward + gamma * max(score[i]))
-		model.fit(x_train, y_train, iterNum, batchSize)
+		model.fit(0, x_train, y_train, iterNum, batchSize)

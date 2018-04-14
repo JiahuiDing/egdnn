@@ -25,6 +25,7 @@ static PyObject * _init(PyObject *self, PyObject *args)
 
 static PyObject * _fit(PyObject *self, PyObject *args)
 {
+	int netId;
 	std::vector<std::vector<double>> trainingSet;
 	std::vector<std::vector<double>> trainingLabels;
 	int iterNum;
@@ -32,7 +33,7 @@ static PyObject * _fit(PyObject *self, PyObject *args)
 	
 	PyObject * trainingSet_obj;
 	PyObject * trainingLabels_obj;
-	PyArg_ParseTuple(args, "OOii", &trainingSet_obj, &trainingLabels_obj, &iterNum, &batchSize);
+	PyArg_ParseTuple(args, "iOOii", &netId, &trainingSet_obj, &trainingLabels_obj, &iterNum, &batchSize);
 	
 	// parse trainingSet
 	int trainingSet_dim0 = PyArray_DIMS(trainingSet_obj)[0];
@@ -62,7 +63,7 @@ static PyObject * _fit(PyObject *self, PyObject *args)
 		}
 	}
 	
-	model->fit(trainingSet, trainingLabels, iterNum, batchSize);
+	model->fit(netId, trainingSet, trainingLabels, iterNum, batchSize);
 	
 	Py_INCREF(Py_None);
 	return Py_None;
