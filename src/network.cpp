@@ -289,7 +289,7 @@ void Network::Mutate()
 	}
 	*/
 	
-	int newHiddenNeuronNum = (int) fRand(0,5);
+	int newHiddenNeuronNum = (int) fRand(0,2);
 	double rateNew = 1.0;
 	double rateInputHidden = 0.1;
 	double rateHiddenHidden = 0.1;
