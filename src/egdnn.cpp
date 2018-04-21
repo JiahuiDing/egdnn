@@ -1,9 +1,12 @@
 #include "egdnn.h"
 using namespace EGDNN;
 
-Egdnn::Egdnn(int input_N, int output_N, int populationSize, double learning_rate, double velocity_decay, double regularization_l2, double gradientClip) : 
+Egdnn::Egdnn(int input_N, int output_N, int populationSize, double learning_rate, double velocity_decay, double regularization_l1, double regularization_l2, double rmsprop_rho, double gradientClip) : 
 				input_N(input_N), output_N(output_N), populationSize(populationSize),
-				learning_rate(learning_rate), velocity_decay(velocity_decay), regularization_l2(regularization_l2), gradientClip(gradientClip)
+				learning_rate(learning_rate), velocity_decay(velocity_decay)
+				, regularization_l1(regularization_l1)
+				, regularization_l2(regularization_l2)
+				, rmsprop_rho(rmsprop_rho), gradientClip(gradientClip)
 				
 {
 	srand(getpid());
@@ -11,7 +14,7 @@ Egdnn::Egdnn(int input_N, int output_N, int populationSize, double learning_rate
 	network.resize(populationSize);
 	for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
 	{
-		network[networkCnt] = new Network(learning_rate, velocity_decay, regularization_l2, gradientClip);
+		network[networkCnt] = new Network(learning_rate, velocity_decay, regularization_l1, regularization_l2, rmsprop_rho, gradientClip);
 		for(int i = 0; i < input_N; i++)
 		{
 			network[networkCnt]->AddInputNeuron(new Neuron(-1, Neuron::input));

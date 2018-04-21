@@ -13,17 +13,14 @@ namespace EGDNN
 		Neuron *inNeuron;
 		Neuron *outNeuron;
 		double weight;
+		double rmsprop_s;
 		double velocity;
 		double sumGradient; // store the sum gradient of a batch
-		
-		// rmsprop
-		double rmsprop_s;
-		double rmsprop_rho;
 		
 		Connection(Neuron *inNeuron, Neuron *outNeuron);
 		Connection(Neuron *inNeuron, Neuron *outNeuron, double weight);
 		void AddGradient(double gradient);
-		void UpdateWeight(double learning_rate, double velocity_decay, double regularization_l2);
+		void UpdateWeight(double learning_rate, double velocity_decay, double regularization_l1, double regularization_l2, double rmsprop_rho);
 	};
 }
 

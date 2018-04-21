@@ -12,13 +12,11 @@ Neuron::Neuron(int outputTag, Type type) : outputTag(outputTag), type(type)
 	activeValue = 0;
 	trueValue = 0;
 	gradient = 0;
+	rmsprop_s = 0;
 	velocity = 0;
 	sumGradient = 0;
 	forwardCounter = 0;
 	backwardCounter = 0;
-	
-	rmsprop_s = 0;
-	rmsprop_rho = 0.9;
 }
 
 // Copy the outputTag, type, bias from another neuron. Cannot copy its connection.
@@ -31,13 +29,11 @@ Neuron::Neuron(Neuron *neuron) : outputTag(neuron->outputTag), type(neuron->type
 	activeValue = 0;
 	trueValue = 0;
 	gradient = 0;
+	rmsprop_s = 0;
 	velocity = 0;
 	sumGradient = 0;
 	forwardCounter = 0;
 	backwardCounter = 0;
-	
-	rmsprop_s = 0;
-	rmsprop_rho = 0.9;
 }
 
 Neuron::~Neuron()
@@ -124,21 +120,24 @@ void Neuron::CalGradient()
 }
 
 // Update outConnections weight and bias by gradient
-void Neuron::UpdateWeight(double learning_rate, double velocity_decay, double regularization_l2)
+void Neuron::UpdateWeight(double learning_rate, double velocity_decay, double regularization_l1, double regularization_l2, double rmsprop_rho)
 {	
-	/*
-	velocity = velocity_decay * velocity + sumGradient;
-	sumGradient = 0;
-	bias = bias + learning_rate * velocity - learning_rate * regularization_l2 * bias;
-	*/
-	
-	rmsprop_s = rmsprop_rho * rmsprop_s + (1 - rmsprop_rho) * sumGradient * sumGradient;
-	bias = bias + learning_rate * sumGradient / sqrt(rmsprop_s + 1e-6);
-	sumGradient = 0;
+	if(rmsprop_rho < 0)
+	{
+		velocity = velocity_decay * velocity + sumGradient;
+		sumGradient = 0;
+		bias = bias + learning_rate * velocity;
+	}
+	else
+	{
+		rmsprop_s = rmsprop_rho * rmsprop_s + (1 - rmsprop_rho) * sumGradient * sumGradient;
+		bias = bias + learning_rate * sumGradient / sqrt(rmsprop_s + 1e-6);
+		sumGradient = 0;
+	}
 	
 	for(std::set<Connection *>::iterator it = outConnections.begin(); it != outConnections.end(); it++)
 	{
-		(*it)->UpdateWeight(learning_rate, velocity_decay, regularization_l2);
+		(*it)->UpdateWeight(learning_rate, velocity_decay, regularization_l1, regularization_l2, rmsprop_rho);
 	}
 }
 

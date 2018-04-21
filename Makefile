@@ -3,9 +3,10 @@ CC = g++
 CFLAGS = -g -w
 CPPFLAGS = -I include -I /usr/include/python3.5m
 
-all: build egdnn egdnn_python.so
+#all: build egdnn egdnn_python.so
+all: egdnn_python.so
 
-egdnn_python.so: src/egdnn_python.cpp src/egdnnmain.cpp src/neuron.cpp src/connection.cpp src/network.cpp src/helper.cpp src/egdnn.cpp
+egdnn_python.so: src/egdnn_python.cpp src/neuron.cpp src/connection.cpp src/network.cpp src/helper.cpp src/egdnn.cpp
 	$(CC) $(CFLAGS) $(CPPFLAGS) -fPIC -shared $^ -o $@ -l python3.5m
 
 egdnn: build/egdnnmain.o build/neuron.o build/connection.o build/network.o build/helper.o build/egdnn.o

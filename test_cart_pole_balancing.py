@@ -74,18 +74,20 @@ result = np.zeros(episode_num)
 # settings
 input_N = 4
 output_N = 2
-
 populationSize = 3
+
 learning_rate = 1e-3
 velocity_decay = 0.9
+regularization_l1 = 1e-2
 regularization_l2 = 1e-2
+rmsprop_rho = 0.9
 gradientClip = 1
 
 iterNum = 1
 batchSize = 100
 
 # model
-model.init(input_N, output_N, populationSize, learning_rate, velocity_decay, regularization_l2, gradientClip)
+model.init(input_N, output_N, populationSize, learning_rate, velocity_decay, regularization_l1, regularization_l2, rmsprop_rho, gradientClip)
 
 for episode_cnt in range(episode_num):
 	if episode_cnt % 200 == 0 and episode_cnt != 0:

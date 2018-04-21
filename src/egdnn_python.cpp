@@ -12,12 +12,14 @@ static PyObject * _init(PyObject *self, PyObject *args)
 	int populationSize;
 	double learning_rate;
 	double velocity_decay;
+	double regularization_l1;
 	double regularization_l2;
+	double rmsprop_rho;
 	double gradientClip;
 	
-	PyArg_ParseTuple(args, "iiidddd", &input_N, &output_N, &populationSize, &learning_rate, &velocity_decay, &regularization_l2, &gradientClip);
+	PyArg_ParseTuple(args, "iiidddddd", &input_N, &output_N, &populationSize, &learning_rate, &velocity_decay, &regularization_l1, &regularization_l2, &rmsprop_rho, &gradientClip);
 	
-	model = new Egdnn(input_N, output_N, populationSize, learning_rate, velocity_decay, regularization_l2, gradientClip);
+	model = new Egdnn(input_N, output_N, populationSize, learning_rate, velocity_decay, regularization_l1, regularization_l2, rmsprop_rho, gradientClip);
 	
 	Py_INCREF(Py_None);
 	return Py_None;

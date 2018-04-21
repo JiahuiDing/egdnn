@@ -26,25 +26,23 @@ namespace EGDNN
 		double trueValue;
 		
 		double gradient; // store the gradient of value, not activeValue, for a single input. Used for bakcpropagation.
+		double rmsprop_s;
 		double velocity;
 		double sumGradient; // store the gradient of a batch
-		
-		// rmsprop
-		double rmsprop_s;
-		double rmsprop_rho;
 		
 		int forwardCounter;
 		int backwardCounter;
 		int displayTag; // only used in Network::Display
 		int copyTag;
 		bool visited; // only used in Network::Reachable
+		bool isNew; // only used in Network::Mutate
 		
 		Neuron(int outputTag, Type type);
 		Neuron(Neuron *neuron); // Copy the outputTag, type, bias from another neuron. Cannot copy its connection.
 		~Neuron();
 		void PropagateValue();
 		void CalGradient();
-		void UpdateWeight(double learning_rate, double velocity_decay, double regularization_l2);
+		void UpdateWeight(double learning_rate, double velocity_decay, double regularization_l1, double regularization_l2, double rmsprop_rho);
 		void ResetState();
 		void AddOutConnection(Connection *connection);
 		void AddInConnection(Connection *connection);

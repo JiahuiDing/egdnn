@@ -13,13 +13,15 @@ namespace EGDNN
 		public:
 		double learning_rate;
 		double velocity_decay;
+		double regularization_l1;
 		double regularization_l2;
+		double rmsprop_rho;
 		double gradientClip;
 		std::vector<Neuron *> input_neurons; // input neruons will not be added or deleted, so use vector
 		std::set<Neuron *> hidden_neurons; // hidden neurons may be added or deleted, so use set
 		std::vector<Neuron *> output_neurons; // output neurons will not be added or deleted, so use vector
 		
-		Network(double learning_rate, double velocity_decay, double regularization_l2, double gradientClip);
+		Network(double learning_rate, double velocity_decay, double regularization_l1, double regularization_l2, double rmsprop_rho, double gradientClip);
 		~Network();
 		void ForwardPropagation();
 		void BackPropagation();
