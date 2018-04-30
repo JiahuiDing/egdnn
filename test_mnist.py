@@ -16,7 +16,7 @@ regularization_l2 = 1e-2
 rmsprop_rho = -1
 gradientClip = 1
 
-iterNum = 5
+iterNum = 10
 batchSize = 100
 
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
@@ -38,6 +38,8 @@ y_validate = y_train[50000:]
 model.init(input_N, output_N, populationSize, learning_rate, velocity_decay, regularization_l1, regularization_l2, rmsprop_rho, gradientClip)
 for evolutionCnt in range(100000):
 	print('evolution', evolutionCnt)
+	with open('resultFile.txt', 'a') as f:
+		f.write('{}\n'.format(evolutionCnt))
 	model.fit(-1, x_train[:50000], y_train[:50000], iterNum, batchSize)
 	
 	sample = np.random.choice(10000, 1000)
@@ -52,3 +54,5 @@ for evolutionCnt in range(100000):
 
 score = model.test(0, x_test, y_test)
 print('test accuracy :', score)
+with open('resultFile.txt', 'a') as f:
+		f.write('test accuracy : {}\n'.format(score))

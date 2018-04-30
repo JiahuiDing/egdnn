@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 # parameters
 alpha = 0.1
 gamma = 0.99
-memory_size = 5000
+memory_size = 50000
 episode_num = 100000
 env = gym.make('CartPole-v0')
 
@@ -60,11 +60,13 @@ class Memory:
 		else:
 			index = np.random.randint(self.pos)
 		
+		'''
 		if random.uniform(0,1) < 0.05:
 			for i in range(self.size):
 				if self.memory[i].done == True:
 					index = i
 					break
+		'''
 		
 		return self.memory[index]
 
@@ -89,12 +91,7 @@ batchSize = 100
 # model
 model.init(input_N, output_N, populationSize, learning_rate, velocity_decay, regularization_l1, regularization_l2, rmsprop_rho, gradientClip)
 
-for episode_cnt in range(episode_num):
-	if episode_cnt % 200 == 0 and episode_cnt != 0:
-		print('result average = {}'.format(np.mean(result[episode_cnt-200:episode_cnt])))
-		plt.plot(range(episode_cnt), result[:episode_cnt])
-		plt.show()
-		
+for episode_cnt in range(episode_num):		
 	net_score = np.zeros(populationSize)
 	for _ in range(10):
 		for netId in range(populationSize):
@@ -137,6 +134,8 @@ for episode_cnt in range(episode_num):
 	net_score /= 10
 	result[episode_cnt] = np.max(net_score)
 	print('episode_cnt = {} : Episode finished after {} timesteps'.format(episode_cnt, result[episode_cnt]))
+	with open('resultFile.txt', 'a') as f:
+		f.write('{}\n{}\n'.format(episode_cnt, result[episode_cnt]))
 	print(net_score)
 	model.display()
 	model.evolution(np.argmax(net_score))

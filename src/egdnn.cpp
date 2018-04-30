@@ -144,9 +144,9 @@ double Egdnn::test(int netId, std::vector<std::vector<double>> testSet, std::vec
 	std::cout << "\n";
 	
 	std::ofstream resultFile("resultFile.txt", std::ios::app);
-	resultFile << "net " << netId << " : ";
-	resultFile << "test error " << error << " , ";
-	resultFile << "test accuracy " << accuracy << " , ";
+	resultFile << netId << " ";
+	resultFile << error << " ";
+	resultFile << accuracy << " ";
 	resultFile << "\n";
 	resultFile.close();
 	
@@ -188,12 +188,10 @@ void Egdnn::display()
 		std::cout << "averageWeight " << network[networkCnt]->CalAverageWeight() << " , ";
 		std::cout << "\n";
 		
-		resultFile << "net " << networkCnt << " : ";
-		resultFile << "neuronNum " << network[networkCnt]->CalNeuronNum() << " , ";
-		resultFile << "connectionNum " << network[networkCnt]->CalConnectionNum() << " , ";
-		//resultFile << "learning_rate " << network[networkCnt]->learning_rate << " , ";
-		//resultFile << "velocity_decay " << network[networkCnt]->velocity_decay << " , ";
-		resultFile << "averageWeight " << network[networkCnt]->CalAverageWeight() << " , ";
+		resultFile << networkCnt << " ";
+		resultFile << network[networkCnt]->CalNeuronNum() << " ";
+		resultFile << network[networkCnt]->CalConnectionNum() << " ";
+		resultFile << network[networkCnt]->CalAverageWeight() << " ";
 		resultFile << "\n";
 	}
 	resultFile.close();
