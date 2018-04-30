@@ -31,24 +31,24 @@ x_test = x_test.astype('float64')
 x_test /= 255
 y_test = keras.utils.to_categorical(y_test, output_N)
 
+x_validate = x_train[50000:]
+y_validate = y_train[50000:]
+
 # model
 model.init(input_N, output_N, populationSize, learning_rate, velocity_decay, regularization_l1, regularization_l2, rmsprop_rho, gradientClip)
 for evolutionCnt in range(100000):
 	print('evolution', evolutionCnt)
 	model.fit(-1, x_train[:50000], y_train[:50000], iterNum, batchSize)
+	
+	sample = np.random.choice(10000, 1000)
 	score = np.zeros(populationSize)
 	for netId in range(populationSize):
-		score[netId] = model.test(netId, x_train[59000:], y_train[59000:])
+		score[netId] = model.test(netId, x_validate[sample], y_validate[sample])
+		
 	model.display()
 	model.evolution(np.argmax(score))
 	if model.kbhit():
 		break
 
-prediction = np.zeros([populationSize, 10, output_N])
-for netId in range(populationSize):
-	prediction[netId] = model.predict_batch(netId, x_train[:10])
-for i in range(10):
-	for netId in range(populationSize):
-		print(prediction[netId][i])
-	plt.imshow(x_train[i].reshape(28,28), cmap = 'gray')
-	plt.show()
+score = model.test(0, x_test, y_test)
+print('test accuracy :', score)

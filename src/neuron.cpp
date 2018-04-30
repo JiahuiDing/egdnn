@@ -113,8 +113,7 @@ void Neuron::CalGradient()
 	}
 	else // output neuron
 	{
-		gradient = - MeanSquareErrorGrad(activeValue, trueValue);
-		//gradient = - SoftmaxCrossEntropyGrad(activeValue, trueValue);
+		gradient = - activeValue + trueValue;
 		sumGradient += gradient;
 	}
 }

@@ -142,6 +142,14 @@ double Egdnn::test(int netId, std::vector<std::vector<double>> testSet, std::vec
 	std::cout << "test error " << error << " , ";
 	std::cout << "test accuracy " << accuracy << " , ";
 	std::cout << "\n";
+	
+	std::ofstream resultFile("resultFile.txt", std::ios::app);
+	resultFile << "net " << netId << " : ";
+	resultFile << "test error " << error << " , ";
+	resultFile << "test accuracy " << accuracy << " , ";
+	resultFile << "\n";
+	resultFile.close();
+	
 	return accuracy;
 }
 
@@ -169,6 +177,7 @@ void Egdnn::evolution(int bestNetId)
 
 void Egdnn::display()
 {
+	std::ofstream resultFile("resultFile.txt", std::ios::app);
 	for(int networkCnt = 0; networkCnt < populationSize; networkCnt++)
 	{
 		std::cout << "net " << networkCnt << " : ";
@@ -178,5 +187,14 @@ void Egdnn::display()
 		//std::cout << "velocity_decay " << network[networkCnt]->velocity_decay << " , ";
 		std::cout << "averageWeight " << network[networkCnt]->CalAverageWeight() << " , ";
 		std::cout << "\n";
+		
+		resultFile << "net " << networkCnt << " : ";
+		resultFile << "neuronNum " << network[networkCnt]->CalNeuronNum() << " , ";
+		resultFile << "connectionNum " << network[networkCnt]->CalConnectionNum() << " , ";
+		//resultFile << "learning_rate " << network[networkCnt]->learning_rate << " , ";
+		//resultFile << "velocity_decay " << network[networkCnt]->velocity_decay << " , ";
+		resultFile << "averageWeight " << network[networkCnt]->CalAverageWeight() << " , ";
+		resultFile << "\n";
 	}
+	resultFile.close();
 }

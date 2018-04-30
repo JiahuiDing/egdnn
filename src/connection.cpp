@@ -23,16 +23,29 @@ void Connection::AddGradient(double gradient)
 
 void Connection::UpdateWeight(double learning_rate, double velocity_decay, double regularization_l1, double regularization_l2, double rmsprop_rho)
 {
-	if(rmsprop_rho < 0)
+	if(rmsprop_rho < 0) // use momentum
 	{
 		velocity = velocity_decay * velocity + sumGradient;
 		sumGradient = 0;
-		weight = weight + learning_rate * velocity - learning_rate * regularization_l1 * fabs(weight) / weight - learning_rate * regularization_l2 * weight;
+		weight = weight + learning_rate * velocity;
 	}
-	else
+	else // use rmsprop
 	{
 		rmsprop_s = rmsprop_rho * rmsprop_s + (1 - rmsprop_rho) * sumGradient * sumGradient;
-		weight = weight + learning_rate * sumGradient / sqrt(rmsprop_s + 1e-6) - learning_rate * regularization_l1 * fabs(weight) / weight - learning_rate * regularization_l2 * weight;
+		weight = weight + learning_rate * sumGradient / sqrt(rmsprop_s + 1e-6);
 		sumGradient = 0;
+	}
+	
+	if(weight > eps)
+	{
+		double reg = learning_rate * regularization_l1 * fabs(weight) / weight + learning_rate * regularization_l2 * weight;
+		if(fabs(weight) < fabs(reg))
+		{
+			weight = 0;
+		}
+		else
+		{
+			weight = weight - reg;
+		}
 	}
 }

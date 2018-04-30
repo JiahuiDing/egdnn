@@ -289,11 +289,26 @@ void Network::Mutate()
 	}
 	*/
 	
-	int newHiddenNeuronNum = (int) fRand(0,2);
-	double rateNew = 1.0;
-	double rateInputHidden = 0.1;
-	double rateHiddenHidden = 0.1;
-	double rateHiddenOutput = 0.1;
+	/*
+	int newHiddenNeuronNum;
+	if(hidden_neurons.size() < 5)
+	{
+		newHiddenNeuronNum = 5;
+	}
+	else
+	{
+		newHiddenNeuronNum = (int) fRand(0, 2 + 0.05 * hidden_neurons.size());
+	}
+	*/
+	
+	int newHiddenNeuronNum = (int) fRand(0, 2 + 0.05 * hidden_neurons.size());
+	
+	double rateNewInputHidden = 0.8;
+	double rateNewHiddenOutput = 0.8;
+	double rateNewHiddenHidden = 0.3;
+	double rateInputHidden = 0.05;
+	double rateHiddenOutput = 0.05;
+	double rateHiddenHidden = 0.01;
 	
 	// add hidden neurons
 	std::vector<Neuron *> newNeurons;
@@ -315,7 +330,7 @@ void Network::Mutate()
 			double rate = 0.0;
 			if(neuron2->isNew == true)
 			{
-				rate = rateNew;
+				rate = rateNewInputHidden;
 			}
 			else
 			{
@@ -340,7 +355,7 @@ void Network::Mutate()
 			double rate = 0.0;
 			if(neuron1->isNew == true)
 			{
-				rate = rateNew;
+				rate = rateNewHiddenOutput;
 			}
 			else
 			{
@@ -365,7 +380,7 @@ void Network::Mutate()
 			double rate = 0.0;
 			if(neuron1->isNew == true || neuron2->isNew == true)
 			{
-				rate = rateNew;
+				rate = rateNewHiddenHidden;
 			}
 			else
 			{
