@@ -1,5 +1,3 @@
-# pass the test in about 50 iterations
-
 import egdnn_python as model
 import gym
 import numpy as np
@@ -138,4 +136,8 @@ for episode_cnt in range(episode_num):
 		f.write('{}\n{}\n'.format(episode_cnt, result[episode_cnt]))
 	print(net_score)
 	model.display()
-	model.evolution(np.argmax(net_score))
+	
+	if np.max(net_score) / net_score[0] > 1.3 or np.max(net_score) > 196.91:
+		model.evolution(np.argmax(net_score))
+	else:
+		model.evolution(0)

@@ -14,7 +14,7 @@ import getch
 batch_size = 100
 alpha = 0.1
 gamma = 0.99
-memory_size = 100000
+memory_size = 50000
 episode_num = 100000
 env = gym.make('CartPole-v0')
 
@@ -46,12 +46,6 @@ class Memory:
 		else:
 			index = np.random.randint(self.pos)
 		
-		if random.uniform(0,1) < 0.05:
-			for i in range(self.size):
-				if self.memory[i].done == True:
-					index = i
-					break
-		
 		return self.memory[index]
 
 MEM = Memory(memory_size)
@@ -59,13 +53,16 @@ result = np.zeros(episode_num)
 
 # model
 model = Sequential()
-model.add(Dense(32, activation = 'relu', input_dim = 4, kernel_initializer = 'random_uniform'))
+model.add(Dense(16, activation = 'relu', input_dim = 4, kernel_initializer = 'random_uniform'))
+model.add(Dense(16, activation = 'relu', input_dim = 4, kernel_initializer = 'random_uniform'))
 model.add(Dense(2, activation = 'linear', kernel_initializer = 'random_uniform'))
 model.compile(loss = 'mse', optimizer = 'rmsprop')
 
 for episode_cnt in range(episode_num):
 	if episode_cnt % 200 == 0 and episode_cnt != 0:
 		print('result average = {}'.format(np.mean(result[episode_cnt-200:episode_cnt])))
+		plt.xlabel('iteration')
+		plt.ylabel('balancing count')
 		plt.plot(range(episode_cnt), result[:episode_cnt])
 		plt.show()
 	observation_now = env.reset()
