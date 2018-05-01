@@ -42,13 +42,16 @@ for evolutionCnt in range(100000):
 		f.write('{}\n'.format(evolutionCnt))
 	model.fit(-1, x_train[:50000], y_train[:50000], iterNum, batchSize)
 	
-	sample = np.random.choice(10000, 1000)
+	sample = np.random.choice(10000, 3000)
 	score = np.zeros(populationSize)
 	for netId in range(populationSize):
 		score[netId] = model.test(netId, x_validate[sample], y_validate[sample])
 		
 	model.display()
-	model.evolution(np.argmax(score))
+	if np.max(score) / score[0] > 1.006:
+		model.evolution(np.argmax(score))
+	else:
+		model.evolution(0)
 	if model.kbhit():
 		break
 

@@ -94,7 +94,7 @@ void Network::ForwardPropagation()
 		}
 	}
 	
-	//Softmax();
+	Softmax();
 }
 
 void Network::BackPropagation()
@@ -490,8 +490,8 @@ double Network::CalError()
 	for(std::vector<Neuron *>::iterator it = output_neurons.begin(); it != output_neurons.end(); it++)
 	{
 		Neuron *neuron = *it;
-		error += neuron->CalError(); // For mean square error
-		//if(neuron->trueValue > 0.5) return -log(neuron->activeValue); // For cross-entropy error
+		//error += neuron->CalError(); // For mean square error
+		if(neuron->trueValue > 0.5) return -log(neuron->activeValue); // For cross-entropy error
 	}
 	return error;
 }
